@@ -38,23 +38,40 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         const audioFile = files.audio[0];
         const filePath = audioFile.path;
-        const outputPath = path.join('/tmp', 'converted.wav');
+        const outputPath = path.join(tmpDir, 'converted.wav');
         console.log("Transcribing audio file:", filePath);
+        if (!fs.existsSync(filePath)) {
+            console.error("File does not exist:", filePath);
+            res.status(400).json({ error: "Uploaded file is missing or inaccessible" });
+            return;
+        }
+        
         ffmpeg(filePath)
-        .output(outputPath)
+        .toFormat('wav')
         .on('end', async () => {
+            try {
             const transcription = await openai.audio.translations.create({
                 file: fs.createReadStream(outputPath),
                 model: "whisper-1",
             });
 
             res.status(200).json({ text: transcription.text });
+            } catch (error) {
+            console.error("Error during transcription:", error);
+            res.status(500).json({ error: "Failed to transcribe audio file" });
+            } finally {
+            // Clean up the temporary files
+            fs.unlinkSync(filePath);
+            fs.unlinkSync(outputPath);
+            }
         })
         .on('error', (error) => {
             console.error("Error during file conversion:", error);
             res.status(500).json({ error: "Failed to convert audio file" });
+            // Clean up the temporary file
+            fs.unlinkSync(filePath);
         })
-        .run();
+        .save(outputPath); // Specify the output file path
     });
 };
 

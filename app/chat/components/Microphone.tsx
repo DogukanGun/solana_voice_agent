@@ -1,19 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback, } from "react";
-import { useQueue } from "@uidotdev/usehooks";
+import { useState, useCallback, } from "react";
 import Recording from "../../../public/recording.svg";
 import Siriwave from 'react-siriwave';
+import TypingEffect from "./TypingEffect";
 
 
 export default function Microphone() {
-    const { add, remove, first, size, queue } = useQueue<any>([]);
-    const [isListening, setListening] = useState(false);
     const [micOpen, setMicOpen] = useState(false);
     const [microphone, setMicrophone] = useState<MediaRecorder | null>();
     const [userMedia, setUserMedia] = useState<MediaStream | null>();
-    const [caption, setCaption] = useState<string | null>();
-    const [audio, setAudio] = useState<HTMLAudioElement | null>();
+    const [caption, setCaption] = useState<string>("");
+    const [audio] = useState<HTMLAudioElement | null>();
     const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
     const toggleMicrophone = useCallback(async () => {
@@ -24,20 +22,20 @@ export default function Microphone() {
         } else {
             const userMedia = await navigator.mediaDevices.getUserMedia({ audio: true });
             const microphone = new MediaRecorder(userMedia);
-            microphone.start(500);
+            microphone.start(200);
             setAudioChunks([]);
-
             microphone.onstart = () => {
                 setMicOpen(true);
-                setListening(true);
             };
-    
             microphone.onstop = async() => {
                 setMicOpen(false);
-                setListening(false);
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const formData = new FormData();
                 formData.append("audio", audioBlob, "audio.webm");
+                if (audioBlob.size === 0) {
+                    console.error("Audio blob is empty. Check the recording process.");
+                    return;
+                }
                 try {
                     const response = await fetch("/api/transcribe", {
                         method: "POST",
@@ -45,6 +43,7 @@ export default function Microphone() {
                     });
                     const result = await response.json();
                     console.log("Transcription:", result.text);
+                    setCaption(result.text);
                 } catch (error) {
                     console.error("Error transcribing audio:", error);
                 }
@@ -112,10 +111,9 @@ export default function Microphone() {
                     />
                 </button>
                 <div className="mt-20 p-6 text-xl text-center">
-                    {caption}
+                    <TypingEffect text={caption} />
                 </div>
             </div>
-
         </div>
     );
 }

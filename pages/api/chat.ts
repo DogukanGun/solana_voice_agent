@@ -48,7 +48,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const mp3 = await openai.audio.speech.create({
                 model: "tts-1",
                 voice: "alloy",
-                input: message.content!!,
+                input: message.content || "",
             });
 
             // Convert audio data to buffer and return it
