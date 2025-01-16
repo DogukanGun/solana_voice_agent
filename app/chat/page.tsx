@@ -5,7 +5,7 @@ import { useAppKitAccount } from "../config";
 
 
 export default function Home() {
-  const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount()
+  const { isConnected } = useAppKitAccount()
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">

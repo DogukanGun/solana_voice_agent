@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Siriwave from 'react-siriwave';
 import '@reown/appkit-wallet-button/react'
+import { useAppKit, useAppKitAccount } from '@/app/config';
 
 const Starter = () => {
     const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+    const { open, close } = useAppKit()
     useEffect(() => {
         const audio = new Audio();
         audio.src = "/WelcomeMessage.mp3";
@@ -29,10 +31,8 @@ const Starter = () => {
                     theme="ios9"
                     autostart={handleAudio}
                 /> : <>
-                    <appkit-button />
+                    <button onClick={()=>open()} className="p-6 bg-blue-500 text-white rounded">Connect Wallet</button>
                 </>
-
-
                 }
             </div>
         </div>
