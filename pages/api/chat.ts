@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         case 'POST':
             // Handle POST request
-            const { caption } = req.body;
+            const { caption, messageHistory } = req.body;
             if (!caption || typeof caption !== "string") {
                 return res.status(400).json({ error: "Caption is required and should be a string." });
             }
@@ -29,6 +29,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                         role: "system",
                         content: "So user will send you a text. Now you have to decide that message is about executing a transaction in blockchain or not.If it is, then only return this  (${user_message} represents user's message) \"{text:${user_message}, op:sol_ai}\" . Otherwise, answer question normally.",
                     },
+                    ...messageHistory,
                     {
                         role: "user",
                         content: caption,
@@ -54,10 +55,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             // Convert audio data to buffer and return it
             const buffer = Buffer.from(await mp3.arrayBuffer());
+            const base64Audio = buffer.toString("base64");
 
-            res.setHeader("Content-Type", "audio/mp3");
-            res.setHeader("Content-Disposition", `attachment; filename="speech.mp3"`);
-            res.status(200).send(buffer);
+            res.status(200).json({
+                text: message.content || "",
+                audio: base64Audio,
+            });
             break;
 
         default:
