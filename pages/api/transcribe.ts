@@ -15,11 +15,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         apiKey: process.env.OPEN_AI_KEY || "",
     });
 
-    if (req.method !== "POST") {
-        res.status(405).json({ error: "Method not allowed" });
-        return;
-    }
-
     const tmpDir = path.join(process.cwd(), "tmp");
 
     // Ensure the temporary directory exists
