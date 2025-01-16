@@ -5,7 +5,7 @@ import Starter from "./components/Starter";
 
 
 export default function Home() {
-  const [firstSetup, setFirstSetup] = useState(true);
+  const [firstSetup, setFirstSetup] = useState(false);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">

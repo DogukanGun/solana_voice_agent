@@ -6,6 +6,11 @@ import OpenAI from "openai";
 import ffmpeg from 'fluent-ffmpeg';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    const { method } = req;
+    if (method === "GET") {
+        res.status(405).json({ error: "Method not allowed" });
+        return;
+    }
     const openai = new OpenAI({
         apiKey: process.env.OPEN_AI_KEY || "",
     });

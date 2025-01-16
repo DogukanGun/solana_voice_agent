@@ -19,15 +19,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             const openai = new OpenAI(
                 {
-                    apiKey:process.env.OPEN_API_KEY
+                    apiKey:process.env.OPEN_AI_KEY
                 }
             );
             const completions = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [
                     {
-                        role: "assistant",
-                        content: "You are communicating with the user on a phone, so your answers should not be too long and go directly to the essence of the sentences.",
+                        role: "system",
+                        content: "So user will send you a text. Now you have to decide that message is about executing a transaction in blockchain or not.If it is, then only return this  (${user_message} represents user's message) \"{text:${user_message}, op:sol_ai}\" . Otherwise, answer question normally.",
                     },
                     {
                         role: "user",
@@ -36,6 +36,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 ],
             })
             const message = completions.choices[0].message;
+            console.log(message)
 
             if (!message) {
                 return res.status(500).json({ error: "Failed to generate a response." });

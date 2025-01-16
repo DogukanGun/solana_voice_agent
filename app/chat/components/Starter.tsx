@@ -31,8 +31,7 @@ const Starter = () => {
                     theme="ios9"
                     autostart={handleAudio() || false}
                 /> : <>
-                <button className='text-white' onClick={() => open()}>Open Connect Modal</button>
-                <button onClick={() => open({ view: 'Networks' })}>Open Network Modal</button>
+                <appkit-button />
               </>
 
 

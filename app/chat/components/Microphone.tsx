@@ -12,7 +12,6 @@ export default function Microphone() {
     const [userMedia, setUserMedia] = useState<MediaStream | null>();
     const [caption, setCaption] = useState<string>("");
     const [audio] = useState<HTMLAudioElement | null>();
-    const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
     const toggleMicrophone = useCallback(async () => {
         if (microphone && userMedia) {
@@ -22,45 +21,48 @@ export default function Microphone() {
         } else {
             const userMedia = await navigator.mediaDevices.getUserMedia({ audio: true });
             const microphone = new MediaRecorder(userMedia);
-            microphone.start(200);
-            setAudioChunks([]);
+            microphone.start(50);
+            let localAudioChunks:Blob[] = [];
             microphone.onstart = () => {
                 setMicOpen(true);
             };
-            microphone.onstop = async() => {
+            microphone.onstop = () => {
                 setMicOpen(false);
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm' });
                 const formData = new FormData();
+                localAudioChunks = [];
                 formData.append("audio", audioBlob, "audio.webm");
                 if (audioBlob.size === 0) {
                     console.error("Audio blob is empty. Check the recording process.");
                     return;
                 }
-                try {
-                    const response = await fetch("/api/transcribe", {
-                        method: "POST",
-                        body: formData,
-                    });
-                    const result = await response.json();
-                    console.log("Transcription:", result.text);
-                    setCaption(result.text);
-                } catch (error) {
-                    console.error("Error transcribing audio:", error);
-                }
+                readVoice(formData);
             };
-
-    
-            microphone.ondataavailable = async (e) => {
-                setAudioChunks((prevChunks) => [...prevChunks, e.data]);
+            microphone.ondataavailable = (e) => {
+                localAudioChunks.push(e.data); 
             };
-    
             setUserMedia(userMedia);
             setMicrophone(microphone);
         }
     }, [microphone, userMedia]);
+
+    const readVoice = async(formData:FormData) => {
+        try {
+            const response = await fetch("/api/transcribe", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+            console.log("Transcription:", result.text);
+            setCaption(result.text);
+            generateAudio(result.text);
+        } catch (error) {
+            console.error("Error transcribing audio:", error);
+        }
+    }
     
 
-    const generateAudio = async (caption: string) => {
+    const generateAudio = async (caption:string) => {
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
@@ -71,18 +73,25 @@ export default function Microphone() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to fetch audio");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to fetch audio");
             }
-
+        
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
-
+        
             const audio = new Audio(audioUrl);
             audio.play();
+        
+            // Revoke the object URL after the audio is played
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+            };
         } catch (error) {
             console.error("Error generating audio:", error);
         }
-    }
+    };
+
 
     function handleAudio() {
         return audio && audio.currentTime > 0 && !audio.paused && !audio.ended && audio.readyState > 2;

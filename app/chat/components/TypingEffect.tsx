@@ -9,11 +9,14 @@ function TypingEffect({ text }: { text: string | null }) {
             setDisplayText(""); // Clear display when text is null or empty
             return;
         }
-        let index = -1;
+        let index = 0;
         setDisplayText(""); // Reset display text
         const interval = setInterval(() => {
-            if (index < text.length-1) {
-                setDisplayText((prev) => prev + text[index]);
+            if (index < text.length) {
+                const letter = text[index];
+                if (letter !== undefined) {
+                    setDisplayText((prev) => prev + letter);
+                }
                 index++;
             } else {
                 clearInterval(interval);
