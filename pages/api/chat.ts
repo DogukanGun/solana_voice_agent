@@ -1,6 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
+type SolOP = {
+    text:string, 
+    op:string
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { method } = req;
 
@@ -38,7 +43,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             })
             const message = completions.choices[0].message;
             console.log(message)
-
             if (!message) {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
@@ -46,6 +50,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             if (!message.content) {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
+            try {
+                const solOP:SolOP = JSON.parse(message.content)
+                if(solOP.op === "sol_ai"){
+                    return res.status(200).json({
+                        text: message.content || "",
+                        op:solOP.op
+                    });
+                }
+            }catch(e){
+                console.log("Not a sol_op")
+            }
+
             // Convert the message to speech
             const mp3 = await openai.audio.speech.create({
                 model: "tts-1",
