@@ -33,14 +33,26 @@ const Navbar = () => {
                     </div>
                     <div className="hidden flex-none lg:block">
                         <ul className="menu menu-horizontal px-4 py-2">
-                            {path == "/" && <li>
+                            {path == "/" && 
+                            <>
+                            <li className="mx-6">
+                                <Link
+                                    href="/voice"
+                                    className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
+                                >
+                                    Launch App with Voice
+                                </Link>
+                            </li>
+                            <li>
                                 <Link
                                     href="/chat"
                                     className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
                                 >
-                                    Launch App
+                                    Launch App with Chat
                                 </Link>
-                            </li>}
+                            </li>
+                            </>
+                            }
                             {path == "/chat" &&
                                 <Link
                                     href="/voice"
