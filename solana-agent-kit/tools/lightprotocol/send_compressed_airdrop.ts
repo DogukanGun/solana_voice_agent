@@ -88,7 +88,7 @@ export async function sendCompressedAirdrop(
       agent.connection,
       agent.wallet,
       mintAddress,
-      agent.wallet.publicKey,
+      agent.wallet_address,
     );
   } catch (error) {
     console.error(error);
@@ -136,7 +136,7 @@ async function processAll(
     agent.connection,
     agent.wallet,
     mintAddress,
-    agent.wallet.publicKey,
+    agent.wallet_address,
   );
 
   const maxRecipientsPerInstruction = 5;

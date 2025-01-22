@@ -62,7 +62,7 @@ export async function flashCloseTrade(
       marketData.pool,
       "mainnet-beta",
     );
-    const perpClient = createPerpClient(agent.connection, agent.wallet);
+    const perpClient = createPerpClient(agent.connection, agent.wallet!);
 
     // Calculate price after slippage
     const slippageBpsBN = new BN(100); // 1% slippage

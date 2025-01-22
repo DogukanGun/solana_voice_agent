@@ -65,7 +65,7 @@ export async function orcaFetchPositions(
 
     const positions = await getAllPositionAccountsByOwner({
       ctx,
-      owner: agent.wallet.publicKey,
+      owner: agent.wallet_address,
     });
     const positionDatas = [
       ...positions.positions.entries(),

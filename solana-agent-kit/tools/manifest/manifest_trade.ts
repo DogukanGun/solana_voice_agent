@@ -39,7 +39,7 @@ export async function manifestCreateMarket(
   const tx: Transaction = new Transaction();
   tx.add(createAccountIx);
   tx.add(createMarketIx);
-  if (agent.wallet.publicKey) {
+  if (agent.wallet_address) {
     const txHash = await agent.signByUser(tx.serialize().toString("base64"));
     return [txHash, marketKeypair.publicKey.toBase58()];
   }
@@ -84,7 +84,7 @@ export async function limitOrder(
 
     const depositPlaceOrderIx: TransactionInstruction[] =
       await mfxClient.placeOrderWithRequiredDepositIx(
-        agent.wallet.publicKey,
+        agent.wallet_address,
         orderParams,
       );
     const signature = await sendAndConfirmTransaction(

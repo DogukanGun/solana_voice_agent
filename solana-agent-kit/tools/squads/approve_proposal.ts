@@ -32,10 +32,10 @@ export async function multisig_approve_proposal(
     
     const multisigTx = multisig.transactions.proposalApprove({
       blockhash: (await agent.connection.getLatestBlockhash()).blockhash,
-      feePayer: agent.wallet.publicKey,
+      feePayer: agent.wallet_address,
       multisigPda,
       transactionIndex: transactionIndex,
-      member: agent.wallet.publicKey,
+      member: agent.wallet_address,
     });
 
     if(agent.isUiMode){

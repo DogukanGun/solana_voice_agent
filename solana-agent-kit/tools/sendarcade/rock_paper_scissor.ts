@@ -18,7 +18,7 @@ export async function rock_paper_scissor(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );
@@ -60,7 +60,7 @@ async function outcome(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
           signature: sig,
         }),
       },
@@ -88,7 +88,7 @@ async function won(agent: SolanaAgentKit, href: string): Promise<string> {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );
@@ -120,7 +120,7 @@ async function postWin(agent: SolanaAgentKit, href: string): Promise<string> {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );

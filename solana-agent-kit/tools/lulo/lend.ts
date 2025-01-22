@@ -20,7 +20,7 @@ export async function lendAsset(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );

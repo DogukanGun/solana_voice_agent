@@ -1,6 +1,12 @@
+"use client"
+import { useState } from "react";
 import VideoPlayer from "./components/VideoPlayer";
 
 export default function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
   return (
     <div>
       <div
@@ -8,17 +14,28 @@ export default function Home() {
         style={{
           backgroundImage: "url(/nexarb.png)", // Path relative to the public folder
         }}>
-        <div className="hero-overlay bg-opacity-80"></div>
+        <div className="hero-overlay bg-opacity-70"></div>
         <div className="hero-content text-neutral-content text-center">
           <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Welcome to NexWallet</h1>
-            <p className="mb-5">
+            <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r text-[#C15000] bg-clip-text text-transparent">
+              Welcome to NexWallet
+            </h1>
+            <p className="text-xl mb-8 font-light">
               Manage your wallet by speaking with AI
             </p>
+            <button
+              onClick={handleOpenModal}
+              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-600 transition duration-300"
+            >
+              See Trial
+            </button>
           </div>
         </div>
       </div>
-      <VideoPlayer/>
+      {isModalOpen && <VideoPlayer
+        videoUrl="/welcome.mp4"
+        onClose={handleCloseModal}
+      />}
     </div>
   );
 }

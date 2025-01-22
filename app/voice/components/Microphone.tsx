@@ -5,6 +5,9 @@ import Recording from "../../../public/recording.svg";
 import SiriWave from 'react-siriwave';
 import TypingEffect from "./TypingEffect";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import type { Provider } from '@reown/appkit-adapter-solana'
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 
 
 export default function Microphone() {
@@ -14,6 +17,8 @@ export default function Microphone() {
     const [caption, setCaption] = useState<string>("");
     const [audio] = useState<HTMLAudioElement>(new Audio());
     const [messageHistory, setMessageHistory] = useState<ChatCompletionMessageParam[]>([]);
+    const { walletProvider } = useAppKitProvider<Provider>('solana')
+    const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount()
 
     const toggleMicrophone = useCallback(async () => {
         if (microphone && userMedia) {
@@ -80,18 +85,35 @@ export default function Microphone() {
                 throw new Error(errorData.error || "Failed to fetch audio");
             }
             const { text, audio } = await response.json(); // Destructure text and audio
-            setCaption(text); // Update the UI with the returned text
+            if(text.includes("sol_ai")) {
+                const res = await (await fetch("/api/bot", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ text:text.split("op")[0], address }),
+                })).json()
+                
+                const serializedTransaction = Buffer.from(
+                    res.transaction,
+                    "base64",
+                );
+                const tx = VersionedTransaction.deserialize(serializedTransaction)
+                await walletProvider.signAndSendTransaction(tx);
+            }else{
+                setCaption(text); // Update the UI with the returned text
 
-            const audioBlob = new Blob([Uint8Array.from(atob(audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            setMessageHistory((prev) => [...prev, { role: "system", content: text }]);
-            const audioToPlay = new Audio(audioUrl);
-            audioToPlay.play();
-
-            // Cleanup URL after playback
-            audioToPlay.onended = () => {
-                URL.revokeObjectURL(audioUrl);
-            };
+                const audioBlob = new Blob([Uint8Array.from(atob(audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                setMessageHistory((prev) => [...prev, { role: "system", content: text }]);
+                const audioToPlay = new Audio(audioUrl);
+                audioToPlay.play();
+    
+                // Cleanup URL after playback
+                audioToPlay.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                };
+            }
         } catch (error) {
             console.error("Error generating audio:", error);
         }
@@ -118,8 +140,8 @@ export default function Microphone() {
                         width={96}
                         height={96}
                         className={`cursor-pointer w-full h-full ${!!userMedia && !!microphone && micOpen
-                                ? "fill-red-400 drop-shadow-glowRed"
-                                : "fill-gray-600"
+                            ? "fill-red-400 drop-shadow-glowRed"
+                            : "fill-gray-600"
                             }`}
                     />
                 </button>

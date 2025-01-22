@@ -111,7 +111,7 @@ export async function orcaCreateCLMM(
       mintB,
       tickSpacing,
       initialTick,
-      wallet.publicKey,
+      wallet_address,
     );
 
     const txPayload = await txBuilder.build();

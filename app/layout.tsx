@@ -7,7 +7,6 @@ import WalletProvider from "./provider";
 import ContextProvider from "./context";
 import '@reown/appkit-wallet-button/react'
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,6 +27,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body

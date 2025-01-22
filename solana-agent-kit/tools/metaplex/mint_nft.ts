@@ -56,7 +56,7 @@ export async function mintCollectionNFT(
       collection: collection,
       name: metadata.name,
       uri: metadata.uri,
-      owner: fromWeb3JsPublicKey(recipient ?? agent.wallet.publicKey),
+      owner: fromWeb3JsPublicKey(recipient ?? agent.wallet_address),
     }).sendAndConfirm(umi);
 
     return {

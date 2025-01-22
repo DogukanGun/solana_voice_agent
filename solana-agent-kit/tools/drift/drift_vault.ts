@@ -62,7 +62,7 @@ async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
   const vaultDepositor = getVaultDepositorAddressSync(
     vaultClient.program.programId,
     vaultPublicKey,
-    agent.wallet.publicKey,
+    agent.wallet_address,
   );
 
   try {
@@ -74,7 +74,7 @@ async function getOrCreateVaultDepositor(agent: SolanaAgentKit, vault: string) {
     if (e.message.includes("Account does not exist")) {
       await vaultClient.initializeVaultDepositor(
         vaultPublicKey,
-        agent.wallet.publicKey,
+        agent.wallet_address,
       );
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -488,7 +488,7 @@ async function getIsOwned(agent: SolanaAgentKit, vault: string) {
     const { vaultClient, cleanUp } = await initClients(agent);
     const vaultPublicKey = new PublicKey(vault);
     const vaultDetails = await vaultClient.getVault(vaultPublicKey);
-    const isOwned = vaultDetails.manager.equals(agent.wallet.publicKey);
+    const isOwned = vaultDetails.manager.equals(agent.wallet_address);
 
     await cleanUp();
 
