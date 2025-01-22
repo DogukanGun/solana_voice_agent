@@ -187,7 +187,7 @@ export class SolanaAgentKit {
       this.wallet_address = new PublicKey(private_key);
     }else{
       this.wallet = Keypair.fromSecretKey(bs58.decode(private_key));
-      this.wallet_address = this.wallet_address;
+      this.wallet_address = this.wallet.publicKey;
     }
     
     // Handle both old and new patterns

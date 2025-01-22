@@ -49,7 +49,7 @@ export async function luloLend(
     luloTxn.message.recentBlockhash = blockhash;
 
     // Sign and send transaction
-    luloTxn.sign([agent.wallet]);
+    luloTxn.sign([agent.wallet!]);
 
     const signature = await agent.connection.sendTransaction(luloTxn, {
       preflightCommitment: "confirmed",

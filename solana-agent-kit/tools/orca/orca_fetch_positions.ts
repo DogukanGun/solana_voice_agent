@@ -55,7 +55,7 @@ export async function orcaFetchPositions(
     throw new Error('This function is not available in UI mode');
   }
   try {
-    const wallet = new Wallet(agent.wallet);
+    const wallet = new Wallet(agent.wallet!);
     const ctx = WhirlpoolContext.from(
       agent.connection,
       wallet,

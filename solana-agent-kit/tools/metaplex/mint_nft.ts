@@ -39,7 +39,7 @@ export async function mintCollectionNFT(
     }
     // Create UMI instance from agent
     const umi = createUmi(agent.connection.rpcEndpoint).use(mplCore());
-    umi.use(keypairIdentity(fromWeb3JsKeypair(agent.wallet)));
+    umi.use(keypairIdentity(fromWeb3JsKeypair(agent.wallet!)));
 
     // Convert collection mint to UMI format
     const umiCollectionMint = fromWeb3JsPublicKey(collectionMint);

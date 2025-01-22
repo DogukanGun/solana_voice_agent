@@ -44,7 +44,7 @@ export async function manifestCreateMarket(
     return [txHash, marketKeypair.publicKey.toBase58()];
   }
   const signature = await sendAndConfirmTransaction(agent.connection, tx, [
-    agent.wallet,
+    agent.wallet!,
     marketKeypair,
   ]);
   return [signature, marketKeypair.publicKey.toBase58()];
@@ -90,7 +90,7 @@ export async function limitOrder(
     const signature = await sendAndConfirmTransaction(
       agent.connection,
       new Transaction().add(...depositPlaceOrderIx),
-      [agent.wallet],
+      [agent.wallet!],
     );
 
     return signature;
@@ -120,7 +120,7 @@ export async function cancelAllOrders(
     const signature = await sendAndConfirmTransaction(
       agent.connection,
       new Transaction().add(cancelAllOrdersIx),
-      [agent.wallet],
+      [agent.wallet!],
     );
 
     return signature;
@@ -150,7 +150,7 @@ export async function withdrawAll(
     const signature = await sendAndConfirmTransaction(
       agent.connection,
       new Transaction().add(...withdrawAllIx),
-      [agent.wallet],
+      [agent.wallet!],
     );
 
     return signature;
@@ -289,7 +289,7 @@ export async function batchOrder(
     const signature = await sendAndConfirmTransaction(
       agent.connection,
       new Transaction().add(batchOrderIx),
-      [agent.wallet],
+      [agent.wallet!],
     );
 
     return signature;

@@ -26,14 +26,14 @@ export async function rock_paper_scissor(
     const data = await res.json();
     if (data.transaction) {
       const txn = Transaction.from(Buffer.from(data.transaction, "base64"));
-      txn.sign(agent.wallet);
+      txn.sign(agent.wallet!);
       txn.recentBlockhash = (
         await agent.connection.getLatestBlockhash()
       ).blockhash;
       const sig = await sendAndConfirmTransaction(
         agent.connection,
         txn,
-        [agent.wallet],
+        [agent.wallet!],
         { commitment: "confirmed" },
       );
       const href = data.links?.next?.href;
@@ -96,7 +96,7 @@ async function won(agent: SolanaAgentKit, href: string): Promise<string> {
     const data: any = await res.json();
     if (data.transaction) {
       const txn = Transaction.from(Buffer.from(data.transaction, "base64"));
-      txn.partialSign(agent.wallet);
+      txn.partialSign(agent.wallet!);
       await agent.connection.sendRawTransaction(txn.serialize(), {
         preflightCommitment: "confirmed",
       });

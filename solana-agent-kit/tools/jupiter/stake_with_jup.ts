@@ -39,7 +39,7 @@ export async function stakeWithJup(
     txn.message.recentBlockhash = blockhash;
 
     // Sign and send transaction
-    txn.sign([agent.wallet]);
+    txn.sign([agent.wallet!]);
     const signature = await agent.connection.sendTransaction(txn, {
       preflightCommitment: "confirmed",
       maxRetries: 3,

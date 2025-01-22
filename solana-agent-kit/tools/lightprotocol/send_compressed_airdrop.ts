@@ -86,7 +86,7 @@ export async function sendCompressedAirdrop(
   try {
     await getOrCreateAssociatedTokenAccount(
       agent.connection,
-      agent.wallet,
+      agent.wallet!,
       mintAddress,
       agent.wallet_address,
     );
@@ -100,7 +100,7 @@ export async function sendCompressedAirdrop(
   try {
     await createTokenPool(
       agent.connection as unknown as Rpc,
-      agent.wallet,
+      agent.wallet!,
       mintAddress,
     );
   } catch (error: any) {
@@ -134,7 +134,7 @@ async function processAll(
 
   const sourceTokenAccount = await getOrCreateAssociatedTokenAccount(
     agent.connection,
-    agent.wallet,
+    agent.wallet!,
     mintAddress,
     agent.wallet_address,
   );
@@ -179,8 +179,8 @@ async function processAll(
         const batch = recipientBatch.slice(i, i + maxRecipientsPerInstruction);
         compressIxPromises.push(
           CompressedTokenProgram.compress({
-            payer: payer.publicKey,
-            owner: payer.publicKey,
+            payer: payer!.publicKey,
+            owner: payer!.publicKey,
             source: sourceTokenAccount.address,
             toAddress: batch,
             amount: batch.map(() => amount),
@@ -224,7 +224,7 @@ async function processAll(
         sendTransactionWithRetry(
           rpc,
           instructions,
-          payer,
+          payer!,
           lookupTableAccount,
           i + idx,
         ).then((signature) => {

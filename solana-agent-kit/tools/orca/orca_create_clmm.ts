@@ -71,7 +71,7 @@ export async function orcaCreateCLMM(
     } else {
       throw new Error("Unsupported network");
     }
-    const wallet = new Wallet(agent.wallet);
+    const wallet = new Wallet(agent.wallet!);
     const ctx = WhirlpoolContext.from(
       agent.connection,
       wallet,
@@ -111,7 +111,7 @@ export async function orcaCreateCLMM(
       mintB,
       tickSpacing,
       initialTick,
-      wallet_address,
+      agent.wallet_address,
     );
 
     const txPayload = await txBuilder.build();
