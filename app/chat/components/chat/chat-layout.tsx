@@ -32,7 +32,6 @@ export function ChatLayout({
   chatId,
   loadingSubmit,
   formRef,
-  setMessages,
   setInput,
 }: MergedProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);

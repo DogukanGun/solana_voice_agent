@@ -10,31 +10,12 @@ import { Mic, SendHorizonal, Cuboid } from "lucide-react";
 
 export default function ChatBottombar({
   input,
-  onAttestationClick,
   handleInputChange,
   handleSubmit,
   isLoading,
   stop,
 }: ChatProps) {
-  const [message, setMessage] = React.useState(input);
-  const [isMobile, setIsMobile] = React.useState(false);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
-  React.useEffect(() => {
-    const checkScreenWidth = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    // Initial check
-    checkScreenWidth();
-
-    // Event listener for screen width changes
-    window.addEventListener("resize", checkScreenWidth);
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      window.removeEventListener("resize", checkScreenWidth);
-    };
-  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -43,10 +24,6 @@ export default function ChatBottombar({
     }
   };
 
-
-  const handleListenClick = () => {
-
-  };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -78,22 +55,12 @@ export default function ChatBottombar({
               onKeyDown={handleKeyPress}
               onChange={handleInputChange}
               name="message"
-              placeholder={"Enter your prompt here"}
-              className=" max-h-24 px-14 bg-accent py-[22px] text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full  rounded-full flex items-center h-16 resize-none overflow-hidden dark:bg-card"
+              placeholder="Enter your prompt here"
+              className="w-full max-h-24 px-14 py-4 text-sm placeholder:text-gray-400 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50 bg-[#2a0e0e] rounded-full flex items-center h-16 resize-none overflow-hidden shadow-md transition duration-300"
             />
+
             {!isLoading ? (
               <div className="flex absolute right-3 items-center">
-
-                <Button
-                  className="shrink-0 rounded-full"
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  onClick={onAttestationClick}
-                  disabled={isLoading}
-                >
-                  <Cuboid className="w-5 h-5 " />
-                </Button>
 
                 <Button
                   className="shrink-0 rounded-full"

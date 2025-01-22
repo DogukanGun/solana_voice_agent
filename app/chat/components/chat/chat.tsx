@@ -7,7 +7,6 @@ import { ChatRequestOptions } from "ai";
 
 export interface ChatProps {
   chatId?: string;
-  onAttestationClick?: ()=>void;
   messages: Message[];
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -63,7 +62,6 @@ export default function Chat({
       <ChatBottombar
         messages={messages}
         input={input}
-        onAttestationClick={()=>setAttestationReport((prev)=>!prev)}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         isLoading={isLoading}

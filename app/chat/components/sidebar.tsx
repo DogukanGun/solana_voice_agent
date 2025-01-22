@@ -101,18 +101,17 @@ export function Sidebar({
   return (
     <div
       data-collapsed={isCollapsed}
-      className="relative justify-between group bg-base-300 flex flex-col h-full gap-4 p-2 data-[collapsed=true]:p-2"
+      className="relative justify-between group flex flex-col h-full gap-2 p-2 data-[collapsed=true]:p-1 bg-gradient-to-b from-gray-800 to-gray-900 text-white"
     >
       <div className="flex flex-col justify-between p-2 max-h-fit overflow-y-auto">
         <Button
           onClick={() => {
             router.push("/");
-            // Clear messages
           }}
           variant="ghost"
-          className="flex justify-between w-full h-14 text-sm xl:text-lg font-normal items-center text-white hover:text-[#C15000] transition duration-300"
+          className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500"
         >
-          <div className="flex gap-3 items-center ">
+          <div className="flex gap-3 items-center">
             {!isCollapsed && !isMobile && (
               <Image
                 src="/nexarb.png"
@@ -124,30 +123,22 @@ export function Sidebar({
             )}
             New chat
           </div>
-          <SquarePen size={18} className="shrink-0 w-4 h-4" />
+          <SquarePen size={16} className="shrink-0 w-4 h-4" />
         </Button>
 
-        <div className="flex flex-col pt-10 gap-2">
-          <p className="pl-4 text-xs text-[#C15000] font-semibold">Your chats</p>
+        <div className="flex flex-col pt-8 gap-2">
+          <p className="pl-4 text-xs font-semibold text-orange-500">Your chats</p>
           {localChats.length > 0 && (
             <div>
               {localChats.map(({ chatId, messages }, index) => (
                 <Link
                   key={index}
                   href={`/${chatId.substr(5)}`}
-                  className={cn(
-                    {
-                      [buttonVariants({ variant: "secondaryLink" })]:
-                        chatId.substring(5) === selectedChatId,
-                      [buttonVariants({ variant: "ghost" })]:
-                        chatId.substring(5) !== selectedChatId,
-                    },
-                    "flex justify-between w-full h-14 text-base font-normal items-center text-white hover:text-[#C15000] transition duration-300"
-                  )}
+                  className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500"
                 >
-                  <div className="flex gap-3 items-center truncate">
+                  <div className="flex gap-2 items-center truncate">
                     <div className="flex flex-col">
-                      <span className="text-xs font-normal ">
+                      <span className="text-xs font-normal">
                         {messages.length > 0 ? messages[0].content : ""}
                       </span>
                     </div>
@@ -156,18 +147,18 @@ export function Sidebar({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="flex justify-end items-center hover:text-[#C15000]"
+                        className="flex justify-end items-center text-white hover:text-orange-500"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <MoreHorizontal size={15} className="shrink-0" />
+                        <MoreHorizontal size={14} className="shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="">
+                    <DropdownMenuContent>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="w-full flex gap-2 text-[#C15000] hover:text-red-500 justify-start items-center"
+                            className="w-full flex gap-2 justify-start items-center text-orange-500 hover:text-red-500"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Trash2 className="shrink-0 w-4 h-4" />
@@ -176,10 +167,10 @@ export function Sidebar({
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader className="space-y-4">
-                            <DialogTitle className="text-[#C15000]">
+                            <DialogTitle className="text-orange-500">
                               Delete chat?
                             </DialogTitle>
-                            <DialogDescription className="text-[#C15000]">
+                            <DialogDescription className="text-orange-500">
                               Are you sure you want to delete this chat? This action
                               cannot be undone.
                             </DialogDescription>
@@ -204,11 +195,9 @@ export function Sidebar({
           {isLoading && <SidebarSkeleton />}
         </div>
       </div>
-
-      <div className="justify-end px-2 py-2 w-full border-t border-[#C15000]">
+      <div className="justify-end px-2 py-2 w-full border-t border-orange-500">
         <UserSettings />
       </div>
     </div>
-
   );
 }

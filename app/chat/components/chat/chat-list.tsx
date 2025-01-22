@@ -64,23 +64,6 @@ export default function ChatList({
     }
   }, [isMobile]);
 
-  const onClickQuestion = (value: string, e: React.MouseEvent) => {
-    e.preventDefault();
-
-    handleInputChange({
-      target: { value },
-    } as React.ChangeEvent<HTMLTextAreaElement>);
-
-    setTimeout(() => {
-      formRef.current?.dispatchEvent(
-        new Event("submit", {
-          cancelable: true,
-          bubbles: true,
-        })
-      );
-    }, 1);
-  };
-
   if (messages.length === 0) {
     return (
       <div className="w-full h-full flex justify-center items-center">
@@ -99,37 +82,6 @@ export default function ChatList({
             </p>
           </div>
 
-          <div className="absolute bottom-0 w-full px-4 sm:max-w-3xl grid gap-2 sm:grid-cols-2 sm:gap-4 text-sm">
-            {/* Only display 4 random questions */}
-            {initialQuestions.length > 0 &&
-              initialQuestions.map((message) => {
-                const delay = Math.random() * 0.25;
-
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 1, y: 10, x: 0 }}
-                    animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-                    exit={{ opacity: 0, scale: 1, y: 10, x: 0 }}
-                    transition={{
-                      opacity: { duration: 0.1, delay },
-                      scale: { duration: 0.1, delay },
-                      y: { type: "spring", stiffness: 100, damping: 10, delay },
-                    }}
-                    key={message.content}
-                  >
-                    <Button
-                      key={message.content}
-                      type="button"
-                      variant="outline"
-                      className="sm:text-start px-4 py-8 flex w-full justify-center sm:justify-start items-center text-sm whitespace-pre-wrap"
-                      onClick={(e) => onClickQuestion(message.content, e)}
-                    >
-                      {message.content}
-                    </Button>
-                  </motion.div>
-                );
-              })}
-          </div>
         </div>
       </div>
     );

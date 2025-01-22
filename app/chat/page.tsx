@@ -80,44 +80,24 @@ export default function ChatUI() {
     handleSubmitProduction(e);
   };
 
-  const onOpenChange = (isOpen: boolean) => { 
-    const username = localStorage.getItem("ollama_user")
-    if (username) return setOpen(isOpen)
-
-    localStorage.setItem("ollama_user", "Anonymous")
-    window.dispatchEvent(new Event("storage"))
-    setOpen(isOpen)
-  }
-  
   return (
-    <main className="flex h-[calc(100dvh)] flex-col items-center ">
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <ChatLayout
-          chatId={chatId}
-          messages={messages}
-          input={input}
-          handleInputChange={handleInputChange}
-          handleSubmit={onSubmit}
-          isLoading={isLoading}
-          loadingSubmit={loadingSubmit}
-          error={error}
-          stop={stop}
-          navCollapsedSize={10}
-          defaultLayout={[30, 160]}
-          formRef={formRef}
-          setMessages={setMessages}
-          setInput={setInput}
-        />
-        <DialogContent className="flex flex-col space-y-4">
-          <DialogHeader className="space-y-2">
-            <DialogTitle>Welcome to Ollama!</DialogTitle>
-            <DialogDescription>
-              Enter your name to get started. This is just to personalize your
-              experience.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+    <main className="flex h-[calc(90dvh)] flex-col items-center ">
+      <ChatLayout
+        chatId={chatId}
+        messages={messages}
+        input={input}
+        handleInputChange={handleInputChange}
+        handleSubmit={onSubmit}
+        isLoading={isLoading}
+        loadingSubmit={loadingSubmit}
+        error={error}
+        stop={stop}
+        navCollapsedSize={10}
+        defaultLayout={[30, 160]}
+        formRef={formRef}
+        setMessages={setMessages}
+        setInput={setInput}
+      />
     </main>
   );
 }
