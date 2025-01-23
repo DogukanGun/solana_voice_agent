@@ -5,9 +5,9 @@ import Recording from "../../../public/recording.svg";
 import SiriWave from 'react-siriwave';
 import TypingEffect from "./TypingEffect";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import type { Provider } from '@reown/appkit-adapter-solana'
-import { Transaction, VersionedTransaction } from "@solana/web3.js";
+import { VersionedTransaction } from "@solana/web3.js";
 
 
 export default function Microphone() {
@@ -18,7 +18,7 @@ export default function Microphone() {
     const [audio] = useState<HTMLAudioElement>(new Audio());
     const [messageHistory, setMessageHistory] = useState<ChatCompletionMessageParam[]>([]);
     const { walletProvider } = useAppKitProvider<Provider>('solana')
-    const { address, isConnected, caipAddress, status, embeddedWalletInfo } = useAppKitAccount()
+    const { address } = useAppKitAccount()
 
     const toggleMicrophone = useCallback(async () => {
         if (microphone && userMedia) {

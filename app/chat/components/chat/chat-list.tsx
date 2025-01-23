@@ -1,4 +1,3 @@
-import { Message, useChat } from "ai/react";
 import React, { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/app/lib/utils";
@@ -8,26 +7,14 @@ import Image from "next/image";
 import CodeDisplayBlock from "../code-display-block";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { INITIAL_QUESTIONS } from "@/app/utils/initial-questions";
-import { Button } from "../ui/button";
 
 export default function ChatList({
   messages,
-  input,
-  handleInputChange,
-  handleSubmit,
   isLoading,
-  error,
-  stop,
   loadingSubmit,
-  formRef,
-  isMobile,
 }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [name, setName] = React.useState<string>("");
-  const [localStorageIsLoading, setLocalStorageIsLoading] =
-    React.useState(true);
-  const [initialQuestions, setInitialQuestions] = React.useState<Message[]>([]);
 
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -41,28 +28,8 @@ export default function ChatList({
     const username = localStorage.getItem("ollama_user");
     if (username) {
       setName(username);
-      setLocalStorageIsLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    // Fetch 4 initial questions
-    if (messages.length === 0) {
-      const questionCount = isMobile ? 2 : 4;
-
-      setInitialQuestions(
-        INITIAL_QUESTIONS.sort(() => Math.random() - 0.5)
-          .slice(0, questionCount)
-          .map((message) => {
-            return {
-              id: "1",
-              role: "user",
-              content: message.content,
-            };
-          })
-      );
-    }
-  }, [isMobile]);
 
   if (messages.length === 0) {
     return (
@@ -116,7 +83,7 @@ export default function ChatList({
             <div className="flex gap-3 items-center">
               {message.role === "user" && (
                 <div className="flex items-end gap-3">
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
+                  <span className="bg-black p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
                     {message.content}
                   </span>
                   <Avatar className="flex justify-start items-center overflow-hidden">
@@ -144,7 +111,7 @@ export default function ChatList({
                       className="object-contain dark:invert"
                     />
                   </Avatar>
-                  <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
+                  <span className="bg-black p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
                     {/* Check if the message content contains a code block */}
                     {message.content.split("```").map((part, index) => {
                       if (index % 2 === 0) {
@@ -163,7 +130,7 @@ export default function ChatList({
                     })}
                     {isLoading &&
                       messages.indexOf(message) === messages.length - 1 && (
-                        <span className="animate-pulse" aria-label="Typing">
+                        <span className="animate-pulse bg-black" aria-label="Typing">
                           ...
                         </span>
                       )}
@@ -184,7 +151,7 @@ export default function ChatList({
                 className="object-contain dark:invert"
               />
             </Avatar>
-            <div className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
+            <div className="bg-black p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
               <div className="flex gap-1">
                 <span className="size-1.5 rounded-full bg-slate-700 motion-safe:animate-[bounce_1s_ease-in-out_infinite] dark:bg-slate-300"></span>
                 <span className="size-1.5 rounded-full bg-slate-700 motion-safe:animate-[bounce_0.5s_ease-in-out_infinite] dark:bg-slate-300"></span>

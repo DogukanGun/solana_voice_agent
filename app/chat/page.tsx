@@ -1,12 +1,14 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./components/ui/dialog";
+import type { Provider } from '@reown/appkit-adapter-solana'
 import { ChatLayout } from "./components/chat/chat-layout";
+import { useAppKitAccount } from "../config";
+import { VersionedTransaction } from "@solana/web3.js";
+import { useAppKitProvider } from "@reown/appkit/react";
 
 export default function ChatUI() {
   const {
@@ -31,11 +33,10 @@ export default function ChatUI() {
     },
   });
   const [chatId, setChatId] = React.useState<string>("");
-  const [open, setOpen] = React.useState(false);
-  const env = process.env.NODE_ENV;
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter()
+  const { address } = useAppKitAccount()
+  const { walletProvider } = useAppKitProvider<Provider>('solana')
 
   useEffect(() => {
     if (messages.length < 1) {
@@ -69,6 +70,55 @@ export default function ChatUI() {
 
     addMessage({ role: "user", content: input, id: chatId });
     setInput("");
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ caption:input, messageHistory:messages }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch audio");
+    }
+    const { text } = await response.json();// Destructure text and audio
+    console.log("Text",text)
+    if (text.includes("sol_ai")) {
+      const res = await (await fetch("/api/bot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: text.split("op")[0], address }),
+      })).json()
+      console.log("Bot response",res.text)
+      if(res.text){
+        addMessage({ role: "assistant", content: res.text, id: chatId });
+        setMessages([...messages]);
+        setLoadingSubmit(false);
+      }else{
+        const serializedTransaction = Buffer.from(
+          res.transaction,
+          "base64",
+        );
+        const tx = VersionedTransaction.deserialize(serializedTransaction)
+        try {
+          await walletProvider.signAndSendTransaction(tx);
+        }catch(e){
+          console.log(e)
+          addMessage({ role: "assistant", content: "Transaction failed, please try again", id: chatId });
+          setMessages([...messages]);
+          setLoadingSubmit(false);
+        }
+      }
+    } else {
+      console.log(text.includes("sol_ai"))
+      addMessage({ role: "assistant", content: text, id: chatId });
+      setMessages([...messages]);
+      setLoadingSubmit(false);
+    }
 
   };
 

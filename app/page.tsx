@@ -17,7 +17,7 @@ export default function Home() {
         <div className="hero-overlay bg-opacity-70"></div>
         <div className="hero-content text-neutral-content text-center">
           <div className="max-w-md">
-            <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r text-[#C15000] bg-clip-text text-transparent">
+            <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r text-[#C15000] bg-clip-text">
               Welcome to NexWallet
             </h1>
             <p className="text-xl mb-8 font-light">

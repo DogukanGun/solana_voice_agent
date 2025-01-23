@@ -101,7 +101,7 @@ export function Sidebar({
   return (
     <div
       data-collapsed={isCollapsed}
-      className="relative justify-between group flex flex-col h-full gap-2 p-2 data-[collapsed=true]:p-1 bg-gradient-to-b from-gray-800 to-gray-900 text-white"
+      className="relative justify-between group flex flex-col h-full gap-2 p-2 data-[collapsed=true]:p-1 bg-black text-white"
     >
       <div className="flex flex-col justify-between p-2 max-h-fit overflow-y-auto">
         <Button

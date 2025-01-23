@@ -51,11 +51,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
             try {
-                const solOP:SolOP = JSON.parse(message.content)
-                if(solOP.op === "sol_ai"){
+                if(message.content.includes("sol_ai")){
                     return res.status(200).json({
-                        text: message.content || "",
-                        op:solOP.op
+                        text: message.content|| "",
+                        op:"sol_op"
                     });
                 }
             }catch(e){

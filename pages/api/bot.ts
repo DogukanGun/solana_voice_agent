@@ -51,6 +51,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
     console.log("-------------------");
   }
+  console.log("res=",response);
+  res.send({ text: response });
 }
 
 export default handler; 
