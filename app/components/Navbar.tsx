@@ -34,25 +34,25 @@ const Navbar = () => {
                     </div>
                     <div className="hidden flex-none lg:block">
                         <ul className="menu menu-horizontal px-4 py-2">
-                            {path == "/" && 
-                            <>
-                            <li className="mx-6">
-                                <Link
-                                    href="/voice"
-                                    className={buttonClass}
-                                >
-                                    Launch App with Voice
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/chat"
-                                    className={buttonClass}
-                                >
-                                    Launch App with Chat
-                                </Link>
-                            </li>
-                            </>
+                            {path == "/" &&
+                                <>
+                                    <li className="mx-6">
+                                        <Link
+                                            href="/voice"
+                                            className={buttonClass}
+                                        >
+                                            Launch App with Voice
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            href="/chat"
+                                            className={buttonClass}
+                                        >
+                                            Launch App with Chat
+                                        </Link>
+                                    </li>
+                                </>
                             }
                             {path == "/chat" &&
                                 <Link
@@ -82,9 +82,42 @@ const Navbar = () => {
                 ></label>
                 <ul className="menu bg-base-200 min-h-full w-80 p-4">
                     <li>
-                        <a className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-600 transition duration-300">
-                            Launch App
-                        </a>
+                        {path == "/" &&
+                            <>
+                                <li className="mx-6">
+                                    <Link
+                                        href="/voice"
+                                        className={buttonClass}
+                                    >
+                                        Launch App with Voice
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/chat"
+                                        className={buttonClass}
+                                    >
+                                        Launch App with Chat
+                                    </Link>
+                                </li>
+                            </>
+                        }
+                        {path == "/chat" &&
+                            <Link
+                                href="/voice"
+                                className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
+                            >
+                                Switch to Voice
+                            </Link>
+                        }
+                        {path == "/voice" &&
+                            <Link
+                                href="/chat"
+                                className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
+                            >
+                                Switch to Chat
+                            </Link>
+                        }
                     </li>
                 </ul>
             </div>

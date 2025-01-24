@@ -49,7 +49,27 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   );
 
   const handleCheckCode = async () => {
+    const response = await fetch('/api/user/code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code: accessCode,
+      }),
+    });
 
+    if (response.ok) {
+      const data = await response.json();
+      if (data.isValid) {
+        setIsAllowed(true);
+        setShowPopup(false);
+      } else {
+        console.error('Invalid access code');
+      }
+    } else {
+      console.error('Failed to verify access code:', await response.text());
+    }
   }
 
   const handleSubscribe = async () => {

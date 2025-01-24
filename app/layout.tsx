@@ -7,6 +7,7 @@ import WalletProvider from "./provider";
 import ContextProvider from "./context";
 import '@reown/appkit-wallet-button/react'
 import { ModalProvider } from "./providers/ModalWrapper";
+import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
               <Navbar />
               {children}
               <Footer />
+              <SnackbarProvider maxSnack={2} />
             </ModalProvider>
           </WalletProvider>
         </ContextProvider>
