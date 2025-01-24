@@ -19,6 +19,8 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   const { openModal, closeModal, setModalContent } = useModal();
   const { address, isConnected } = useAppKitAccount()
   const { open, close } = useAppKit()
+  const [accessCode, setAccessCode] = useState<string>("");
+  const [isAccessCodeOpen, setIsAccessCodeOpen] = useState(false);
   const { walletProvider } = useAppKitProvider<Provider>('solana')
   const { connection } = useAppKitConnection()
 
@@ -28,9 +30,27 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
     <div className="popup text-center bg-slate-500 rounded-lg p-8">
       <h2 className='text-2xl py-2'>Subscription Required</h2>
       <p>You need to pay 10$ to subscribe.</p>
-      <button className={`${buttonClass} my-5`} onClick={handleSubscribe}>Subscribe Now</button>
+      <div className="flow grid-flow-row gap-4">
+        <button className={`${buttonClass} mt-3 w-full`} onClick={handleSubscribe}>Subscribe Now</button>
+        <div className="flex items-center mt-6">
+            <input
+              type="text"
+              placeholder="Enter your access code"
+              className="border px-4 py-2 w-full rounded-l-2xl"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value)}
+            />
+            <button onClick={handleCheckCode} className="bg-blue-500 text-white rounded-r-2xl px-4 py-2">
+              Submit
+            </button>
+        </div>
+      </div>
     </div>
   );
+
+  const handleCheckCode = async () => {
+
+  }
 
   const handleSubscribe = async () => {
     const env = process.env.NODE_ENV;
