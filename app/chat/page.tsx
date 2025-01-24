@@ -9,13 +9,13 @@ import { ChatLayout } from "./components/chat/chat-layout";
 import { useAppKitAccount } from "../config";
 import { VersionedTransaction } from "@solana/web3.js";
 import { useAppKitProvider } from "@reown/appkit/react";
+import SubscriptionWrapper from "../providers/SubscriptionWrapper";
 
 export default function ChatUI() {
   const {
     messages,
     input,
     handleInputChange,
-    handleSubmit,
     isLoading,
     error,
     stop,
@@ -76,7 +76,7 @@ export default function ChatUI() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ caption:input, messageHistory:messages }),
+      body: JSON.stringify({ caption: input, messageHistory: messages }),
     });
 
     if (!response.ok) {
@@ -84,7 +84,7 @@ export default function ChatUI() {
       throw new Error(errorData.error || "Failed to fetch audio");
     }
     const { text } = await response.json();// Destructure text and audio
-    console.log("Text",text)
+    console.log("Text", text)
     if (text.includes("sol_ai")) {
       const res = await (await fetch("/api/bot", {
         method: "POST",
@@ -93,12 +93,12 @@ export default function ChatUI() {
         },
         body: JSON.stringify({ text: text.split("op")[0], address }),
       })).json()
-      console.log("Bot response",res.text)
-      if(res.text){
+      console.log("Bot response", res.text)
+      if (res.text) {
         addMessage({ role: "assistant", content: res.text, id: chatId });
         setMessages([...messages]);
         setLoadingSubmit(false);
-      }else{
+      } else {
         const serializedTransaction = Buffer.from(
           res.transaction,
           "base64",
@@ -106,7 +106,7 @@ export default function ChatUI() {
         const tx = VersionedTransaction.deserialize(serializedTransaction)
         try {
           await walletProvider.signAndSendTransaction(tx);
-        }catch(e){
+        } catch (e) {
           console.log(e)
           addMessage({ role: "assistant", content: "Transaction failed, please try again", id: chatId });
           setMessages([...messages]);
@@ -132,22 +132,24 @@ export default function ChatUI() {
 
   return (
     <main className="flex h-[calc(90dvh)] flex-col items-center ">
-      <ChatLayout
-        chatId={chatId}
-        messages={messages}
-        input={input}
-        handleInputChange={handleInputChange}
-        handleSubmit={onSubmit}
-        isLoading={isLoading}
-        loadingSubmit={loadingSubmit}
-        error={error}
-        stop={stop}
-        navCollapsedSize={10}
-        defaultLayout={[30, 160]}
-        formRef={formRef}
-        setMessages={setMessages}
-        setInput={setInput}
-      />
+      <SubscriptionWrapper>
+        <ChatLayout
+          chatId={chatId}
+          messages={messages}
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSubmit={onSubmit}
+          isLoading={isLoading}
+          loadingSubmit={loadingSubmit}
+          error={error}
+          stop={stop}
+          navCollapsedSize={10}
+          defaultLayout={[30, 160]}
+          formRef={formRef}
+          setMessages={setMessages}
+          setInput={setInput}
+        />
+      </SubscriptionWrapper>
     </main>
   );
 }

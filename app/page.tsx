@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import VideoPlayer from "./components/VideoPlayer";
+import Modal from "./components/Modal";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);

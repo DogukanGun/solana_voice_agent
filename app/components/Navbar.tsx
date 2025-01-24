@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { buttonClass } from "./ButtonClass";
 
 const Navbar = () => {
     const path = usePathname()
@@ -38,7 +39,7 @@ const Navbar = () => {
                             <li className="mx-6">
                                 <Link
                                     href="/voice"
-                                    className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
+                                    className={buttonClass}
                                 >
                                     Launch App with Voice
                                 </Link>
@@ -46,7 +47,7 @@ const Navbar = () => {
                             <li>
                                 <Link
                                     href="/chat"
-                                    className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:bg-gray-200 transition duration-300"
+                                    className={buttonClass}
                                 >
                                     Launch App with Chat
                                 </Link>

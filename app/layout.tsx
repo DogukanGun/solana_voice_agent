@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import WalletProvider from "./provider";
 import ContextProvider from "./context";
 import '@reown/appkit-wallet-button/react'
+import { ModalProvider } from "./providers/ModalWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,9 +39,11 @@ export default function RootLayout({
       >
         <ContextProvider>
           <WalletProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <ModalProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </ModalProvider>
           </WalletProvider>
         </ContextProvider>
       </body>
