@@ -1,3 +1,4 @@
+import { withAuth } from "@/middleware/withAuth";
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
@@ -86,4 +87,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 }
 
-export default handler;
+export default withAuth(handler); 

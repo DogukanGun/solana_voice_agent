@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useState } from "react";
 import { Skeleton } from "./ui/skeleton";
-import { useAppKitWallet } from '@reown/appkit-wallet-button/react'
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 export default function UserSettings() {

@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import OpenAI from "openai";
 import ffmpeg from 'fluent-ffmpeg';
+import { withAuth } from "@/middleware/withAuth";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { method } = req;
@@ -81,4 +82,4 @@ export const config = {
     },
 };
 
-export default handler;
+export default withAuth(handler); 

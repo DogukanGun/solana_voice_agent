@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react";
 import VideoPlayer from "./components/VideoPlayer";
-import Modal from "./components/Modal";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +12,7 @@ export default function Home() {
       <div
         className="hero min-h-screen"
         style={{
-          backgroundImage: "url(/nexarb.png)", // Path relative to the public folder
+          backgroundImage: "url(/nexarb.png)",
         }}>
         <div className="hero-overlay bg-opacity-70"></div>
         <div className="hero-content text-neutral-content text-center">

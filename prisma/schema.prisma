@@ -30,4 +30,22 @@ model SpecialUserCodes {
   id              Int      @id @default(autoincrement())
   code            String 
   is_used         Boolean @default(false)
+  used_by         String
+}
+
+model Admins {
+  wallet_address String @id
+}
+
+model Interations {
+  id Int @id
+  user String 
+  page String
+}
+
+model WalletInteraction {
+  id Int @id 
+  user String
+  operation String
+  success Boolean @default(false)
 }

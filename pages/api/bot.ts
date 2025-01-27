@@ -6,6 +6,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { HumanMessage } from "@langchain/core/messages";
 import { NextApiRequest, NextApiResponse } from "next";
+import { withAuth } from "@/middleware/withAuth";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { text, address } = req.body;
@@ -55,4 +56,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   res.send({ text: response });
 }
 
-export default handler; 
+export default withAuth(handler); 

@@ -1,10 +1,52 @@
 "use client"
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { buttonClass } from "./ButtonClass";
+import { usePathname, useRouter } from "next/navigation";
+import { buttonClass, message } from "./ButtonClass";
+import { useAppKitWallet } from "@reown/appkit-wallet-button/react";
+import { useAppKitAccount } from "../config";
+import { useAppKitProvider } from "@reown/appkit/react";
+import type { Provider } from '@reown/appkit-adapter-solana'
+import { useSnackbar } from 'notistack';
+import { apiService } from "../services/ApiService";
 
 const Navbar = () => {
     const path = usePathname()
+    const { enqueueSnackbar } = useSnackbar();
+    const { connect } = useAppKitWallet({
+        onSuccess(data) {
+
+        },
+        onError(error) {
+
+        }
+    })
+    const router = useRouter();
+    const { address, isConnected } = useAppKitAccount();
+    const { walletProvider } = useAppKitProvider<Provider>('solana')
+
+    const signMessage = async () => {
+        if (!walletProvider || !address) {
+            throw Error('user is disconnected')
+        }
+
+        const encodedMessage = new TextEncoder().encode(message)
+        const signature = await walletProvider.signMessage(encodedMessage)
+
+        try {
+            const {token} = await apiService.postAdmin(address, Array.from(signature))
+            if (!token) {
+                throw new Error('Failed to fetch token');
+            }
+
+            localStorage.setItem('token', token);
+            enqueueSnackbar(`Message signed successfully!`, { variant: 'success' });
+            enqueueSnackbar(`Redirecting to admin page`, { variant: 'success' });
+            router.push('/admin');
+        } catch (error) {
+            enqueueSnackbar(`Don\'t need to sign`, { variant: 'error' });
+        }
+    }
+
     return (
         <div className="drawer">
             <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -32,7 +74,13 @@ const Navbar = () => {
                     <div className="mx-2 flex-1 px-2 text-2xl font-bold">
                         Nexarb
                     </div>
-                    <div className="hidden flex-none lg:block">
+                    {!isConnected && <button className={buttonClass} onClick={() => connect("walletConnect")}>
+                        Connect Wallet
+                    </button>}
+                    {isConnected && <button className={buttonClass} onClick={() => signMessage()}>
+                        {address}
+                    </button>}
+                    {isConnected && <div className="hidden flex-none lg:block">
                         <ul className="menu menu-horizontal px-4 py-2">
                             {path == "/" &&
                                 <>
@@ -71,17 +119,16 @@ const Navbar = () => {
                                 </Link>
                             }
                         </ul>
-                    </div>
+                    </div>}
                 </div>
             </div>
-            <div className="drawer-side">
+            {isConnected && <div className="drawer-side">
                 <label
                     htmlFor="my-drawer-3"
                     aria-label="close sidebar"
                     className="drawer-overlay"
                 ></label>
                 <ul className="menu bg-base-200 min-h-full w-80 p-4">
-                    <li>
                         {path == "/" &&
                             <>
                                 <li className="mx-6">
@@ -118,9 +165,8 @@ const Navbar = () => {
                                 Switch to Chat
                             </Link>
                         }
-                    </li>
                 </ul>
-            </div>
+            </div>}
         </div>
     );
 };

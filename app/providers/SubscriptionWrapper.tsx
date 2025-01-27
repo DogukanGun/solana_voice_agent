@@ -1,13 +1,15 @@
+"use client"
 import React, { useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/router';
 import { useModal } from '../hooks/useModal';
 import { buttonClass } from '../components/ButtonClass';
-import { clusterApiUrl, Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useAppKit, useAppKitAccount } from '../config';
 import { useAppKitProvider } from '@reown/appkit/react';
 import type { Provider } from '@reown/appkit-adapter-solana'
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+import { useSnackbar } from 'notistack';
+import { apiService } from '../services/ApiService';
 
 type SubscriptionWrapperProps = {
   children: ReactNode;
@@ -20,55 +22,46 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   const { address, isConnected } = useAppKitAccount()
   const { open, close } = useAppKit()
   const [accessCode, setAccessCode] = useState<string>("");
-  const [isAccessCodeOpen, setIsAccessCodeOpen] = useState(false);
   const { walletProvider } = useAppKitProvider<Provider>('solana')
   const { connection } = useAppKitConnection()
+  const { enqueueSnackbar } = useSnackbar();
 
-
-
-  const PopupComponent: React.FC = () => (
+  const PopupComponent = React.memo(() => (
     <div className="popup text-center bg-slate-500 rounded-lg p-8">
-      <h2 className='text-2xl py-2'>Subscription Required</h2>
-      <p>You need to pay 10$ to subscribe.</p>
+      <h2 className="text-2xl py-2">Subscription Required</h2>
+      <p>You need to pay $10 to subscribe.</p>
       <div className="flow grid-flow-row gap-4">
-        <button className={`${buttonClass} mt-3 w-full`} onClick={handleSubscribe}>Subscribe Now</button>
+        <button className={`${buttonClass} mt-3 w-full`} onClick={handleSubscribe}>
+          Subscribe Now
+        </button>
         <div className="flex items-center mt-6">
-            <input
-              type="text"
-              placeholder="Enter your access code"
-              className="border px-4 py-2 w-full rounded-l-2xl"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-            />
-            <button onClick={handleCheckCode} className="bg-blue-500 text-white rounded-r-2xl px-4 py-2">
-              Submit
-            </button>
+          <input
+            type="text"
+            placeholder="Enter your access code"
+            className="border px-4 py-2 w-full rounded-l-2xl"
+            value={accessCode}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccessCode(e.target.value)}
+          />
+          <button onClick={handleCheckCode} className="bg-blue-500 text-white rounded-r-2xl px-4 py-2">
+            Submit
+          </button>
         </div>
       </div>
     </div>
-  );
+  ));
+
 
   const handleCheckCode = async () => {
-    const response = await fetch('/api/user/code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        code: accessCode,
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const data = await apiService.checkUsercode(accessCode)
       if (data.isValid) {
         setIsAllowed(true);
         setShowPopup(false);
       } else {
         console.error('Invalid access code');
       }
-    } else {
-      console.error('Failed to verify access code:', await response.text());
+    } catch (e) {
+      console.error('Failed to verify access code:', e);
     }
   }
 
@@ -76,7 +69,7 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
     const env = process.env.NODE_ENV;
     if (!isConnected || address === undefined) {
       open()
-      //TODO: Show error message
+      enqueueSnackbar('Please connect with a wallet that has funding.', { variant: 'error' });
       return
     }
     const recipientAddress = new PublicKey("2B8gzcafXieWkB2SL9Esnj7h16ECDnsd5msbg42qn1BS");
@@ -143,6 +136,10 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
     } else {
       closeModal();
     }
+
+    return () => {
+      closeModal();
+    };
   }, [showPopup]);
 
   if (isAllowed) {
