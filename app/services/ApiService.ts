@@ -68,12 +68,13 @@ class ApiService {
         });
     }
 
-    async checkUsercode(code: string): Promise<any> {
-        return this.fetchWithToken("/api/user/code", {
+    async checkUsercode(code: string,walletAddress:string): Promise<any> {
+        return this.fetchWithToken("/api/user/code/check", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 code,
+                walletAddress
             }),
         });
     }

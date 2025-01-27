@@ -10,6 +10,7 @@ import type { Provider } from '@reown/appkit-adapter-solana'
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 import { useSnackbar } from 'notistack';
 import { apiService } from '../services/ApiService';
+import PopupComponent from '../components/PopupComponent';
 
 type SubscriptionWrapperProps = {
   children: ReactNode;
@@ -21,40 +22,18 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   const { openModal, closeModal, setModalContent } = useModal();
   const { address, isConnected } = useAppKitAccount()
   const { open, close } = useAppKit()
-  const [accessCode, setAccessCode] = useState<string>("");
   const { walletProvider } = useAppKitProvider<Provider>('solana')
   const { connection } = useAppKitConnection()
   const { enqueueSnackbar } = useSnackbar();
 
-  const PopupComponent = React.memo(() => (
-    <div className="popup text-center bg-slate-500 rounded-lg p-8">
-      <h2 className="text-2xl py-2">Subscription Required</h2>
-      <p>You need to pay $10 to subscribe.</p>
-      <div className="flow grid-flow-row gap-4">
-        <button className={`${buttonClass} mt-3 w-full`} onClick={handleSubscribe}>
-          Subscribe Now
-        </button>
-        <div className="flex items-center mt-6">
-          <input
-            type="text"
-            placeholder="Enter your access code"
-            className="border px-4 py-2 w-full rounded-l-2xl"
-            value={accessCode}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccessCode(e.target.value)}
-          />
-          <button onClick={handleCheckCode} className="bg-blue-500 text-white rounded-r-2xl px-4 py-2">
-            Submit
-          </button>
-        </div>
-      </div>
-    </div>
-  ));
-
-
-  const handleCheckCode = async () => {
+  const handleCheckCode = async (accessCode:string) => {
     try {
-      const data = await apiService.checkUsercode(accessCode)
-      if (data.isValid) {
+      if(!address){
+        console.error('No wallet address found');
+        return
+      }
+      const {exists} = await apiService.checkUsercode(accessCode,address);
+      if (exists) {
         setIsAllowed(true);
         setShowPopup(false);
       } else {
@@ -131,7 +110,7 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
 
   useEffect(() => {
     if (showPopup) {
-      setModalContent(<PopupComponent />);
+      setModalContent(<PopupComponent handleCheckCode={handleCheckCode} handleSubscribe={handleSubscribe} />);
       openModal();
     } else {
       closeModal();
