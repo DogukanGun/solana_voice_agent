@@ -32,8 +32,8 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
         console.error('No wallet address found');
         return
       }
-      const {exists} = await apiService.checkUsercode(accessCode,address);
-      if (exists) {
+      const checkUsercodeRes = await apiService.checkUsercode(accessCode,address);
+      if (checkUsercodeRes.data.exists) {
         setIsAllowed(true);
         setShowPopup(false);
       } else {
@@ -119,7 +119,7 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
     return () => {
       closeModal();
     };
-  }, [showPopup]);
+  }, [closeModal, handleCheckCode, handleSubscribe, openModal, setModalContent]);
 
   if (isAllowed) {
     return <>{children}</>; // Render the page content if the user is allowed.

@@ -64,7 +64,7 @@ export async function getComputeBudgetInstructions(
     legacyTransaction.add(computeBudgetLimitInstruction, ...instructions);
 
     // Sign the transaction
-    legacyTransaction.sign(agent.wallet);
+    legacyTransaction.sign(agent.wallet!);
 
     // Use Helius API for priority fee calculation
     const response = await fetch(

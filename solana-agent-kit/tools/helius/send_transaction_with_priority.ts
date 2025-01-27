@@ -32,7 +32,7 @@ export async function sendTransactionWithPriorityFee(
   splmintAddress?: PublicKey,
 ): Promise<{ transactionId: string; fee: number }> {
   try {
-    if(agent.isUiMode){
+    if(agent.isUiMode || !agent.wallet){
       throw new Error("UI mode is not supported for this function");
     } 
     if (!splmintAddress) {

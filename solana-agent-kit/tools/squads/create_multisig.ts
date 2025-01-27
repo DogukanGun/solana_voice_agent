@@ -57,7 +57,7 @@ export async function create_squads_multisig(
     const txHash = await agent.signByUser(Buffer.from(tx.serialize()).toString("base64"));
     return txHash;
   }
-  tx.sign([agent.wallet, agent.wallet]); // sign with the agent wallet and the creator wallet
+  tx.sign([agent.wallet!, agent.wallet!]); // sign with the agent wallet and the creator wallet
 
   const txId = connection.sendRawTransaction(tx.serialize());
 

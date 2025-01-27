@@ -68,7 +68,7 @@ export async function orcaOpenCenteredPositionWithLiquidity(
   inputTokenMint: PublicKey,
   inputAmount: Decimal,
 ): Promise<string> {
-  if(agent.isUiMode){
+  if(agent.isUiMode || !agent.wallet){
     throw new Error('This function is not available in UI mode');
   }
   try {

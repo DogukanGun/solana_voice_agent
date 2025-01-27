@@ -48,7 +48,7 @@ export async function orcaClosePosition(
   positionMintAddress: PublicKey,
 ): Promise<string> {
   try {
-    if(agent.isUiMode){
+    if(agent.isUiMode || !agent.wallet){
       throw new Error('This function is not available in UI mode');
     }
     const wallet = new Wallet(agent.wallet);

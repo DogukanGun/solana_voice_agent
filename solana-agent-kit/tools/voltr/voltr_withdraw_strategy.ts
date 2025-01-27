@@ -96,7 +96,7 @@ export async function voltrWithdrawStrategy(
     return txHash;
   }
   const txSig = await sendAndConfirmTransaction(agent.connection, transaction, [
-    agent.wallet,
+    agent.wallet!,
   ]);
   return txSig;
 }

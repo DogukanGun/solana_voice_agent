@@ -39,7 +39,7 @@ export async function listNFTForSale(
       );
     }
 
-    if(agent.isUiMode){
+    if(agent.isUiMode || !agent.wallet){
       throw new Error("UI mode is not supported for this operation");
     }
     
@@ -83,7 +83,7 @@ export async function cancelListing(
 ): Promise<string> {
   const provider = new AnchorProvider(
     agent.connection,
-    new Wallet(agent.wallet),
+    new Wallet(agent.wallet!),
     AnchorProvider.defaultOptions(),
   );
 
@@ -107,7 +107,7 @@ export async function cancelListing(
   const transaction = new Transaction();
   transaction.add(...tx.ixs);
   return await agent.connection.sendTransaction(transaction, [
-    agent.wallet,
+    agent.wallet!,
     ...tx.extraSigners,
   ]);
 }

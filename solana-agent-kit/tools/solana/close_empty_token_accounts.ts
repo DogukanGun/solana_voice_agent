@@ -50,7 +50,7 @@ export async function closeEmptyTokenAccounts(
       return { signature: txHash, size: 0 };
     }
     const signature = await agent.connection.sendTransaction(transaction, [
-      agent.wallet,
+      agent.wallet!,
     ]);
 
     return { signature, size };

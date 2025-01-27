@@ -2,9 +2,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { buttonClass, message } from "./ButtonClass";
-import { useAppKitWallet } from "@reown/appkit-wallet-button/react";
 import { useAppKitAccount } from "../config";
-import { useAppKitProvider } from "@reown/appkit/react";
+import { useAppKit, useAppKitProvider, useDisconnect } from "@reown/appkit/react";
 import type { Provider } from '@reown/appkit-adapter-solana'
 import { useSnackbar } from 'notistack';
 import { apiService } from "../services/ApiService";
@@ -12,17 +11,11 @@ import { apiService } from "../services/ApiService";
 const Navbar = () => {
     const path = usePathname()
     const { enqueueSnackbar } = useSnackbar();
-    const { connect } = useAppKitWallet({
-        onSuccess(data) {
-
-        },
-        onError(error) {
-
-        }
-    })
+    const { open, close } = useAppKit()
     const router = useRouter();
     const { address, isConnected } = useAppKitAccount();
     const { walletProvider } = useAppKitProvider<Provider>('solana')
+    const { disconnect } = useDisconnect();
 
     const signMessage = async () => {
         if (!walletProvider || !address) {
@@ -33,12 +26,12 @@ const Navbar = () => {
         const signature = await walletProvider.signMessage(encodedMessage)
 
         try {
-            const {token} = await apiService.postAdmin(address, Array.from(signature))
-            if (!token) {
+            const pRes = await apiService.postAdmin(address, Array.from(signature))
+            if (!pRes.data.token) {
                 throw new Error('Failed to fetch token');
             }
 
-            localStorage.setItem('token', token);
+            localStorage.setItem('token', pRes.data.token);
             enqueueSnackbar(`Message signed successfully!`, { variant: 'success' });
             enqueueSnackbar(`Redirecting to admin page`, { variant: 'success' });
             router.push('/admin');
@@ -74,12 +67,44 @@ const Navbar = () => {
                     <div className="mx-2 flex-1 px-2 text-2xl font-bold">
                         Nexarb
                     </div>
-                    {!isConnected && <button className={buttonClass} onClick={() => connect("walletConnect")}>
+                    {!isConnected && <button 
+                        className={buttonClass} 
+                        onClick={() => open()}
+                    >
                         Connect Wallet
                     </button>}
-                    {isConnected && <button className={buttonClass} onClick={() => signMessage()}>
-                        {address}
-                    </button>}
+                    
+                    {isConnected && (
+                        <div className="dropdown dropdown-end">
+                            <button 
+                                tabIndex={0} 
+                                className={`${buttonClass} flex items-center gap-2`}
+                            >
+                                {address?.slice(0, 6)}...{address?.slice(-4)}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-down" viewBox="0 0 16 16">
+                                    <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-lg bg-white rounded-box w-52">
+                                <li>
+                                    <button 
+                                        onClick={() => signMessage()}
+                                        className="text-blue-600 hover:bg-blue-50"
+                                    >
+                                        Sign Message
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onClick={() => disconnect()}
+                                        className="text-blue-600 hover:bg-blue-50"
+                                    >
+                                        Disconnect
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
                     {isConnected && <div className="hidden flex-none lg:block">
                         <ul className="menu menu-horizontal px-4 py-2">
                             {path == "/" &&

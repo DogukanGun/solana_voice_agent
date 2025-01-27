@@ -1,9 +1,5 @@
-import Loader from "./components/LoaderIcon"
+import LoadingOverlay from './components/LoadingOverlay';
 
-const LoaderPage = () => {
-    return (
-        <Loader/>
-    )
+export default function Loading() {
+    return <LoadingOverlay />;
 }
-
-export default LoaderPage;

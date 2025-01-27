@@ -27,7 +27,7 @@ export async function deploy_collection(
   options: CollectionOptions,
 ): Promise<CollectionDeployment> {
   try {
-    if(agent.isUiMode){
+    if(agent.isUiMode || !agent.wallet){
       throw new Error("This function is not available in UI mode");
     }
     // Initialize Umi

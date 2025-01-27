@@ -1,3 +1,5 @@
+import { Message } from "ai/react";
+
 type FetchOptions = RequestInit & {
     headers?: Record<string, string>;
 };
@@ -7,6 +9,48 @@ type UserCodeType = {
     is_used: boolean;
     used_by: string;
 }
+
+// Define proper types instead of any
+type ApiResponse<T> = {
+    data: T;
+    status: number;
+    message?: string;
+};
+
+// Define response types based on your API endpoints
+type UserCode = {
+    id: number;
+    code: string;
+    is_used: boolean;
+    used_by: string;
+};
+
+type AdminResponse = {
+    token: string;
+};
+
+type ChatResponse = {
+    text: string;
+    audio?: string;
+};
+
+type BotResponse = {
+    text?: string;
+    transaction?: string;
+};
+
+type TranscribeResponse = {
+    text: string;
+};
+
+type CheckResponse = {
+    exists: boolean;
+};
+
+type RegisterResponse = {
+    success: boolean;
+};
+
 class ApiService {
     private async fetchWithToken<T>(
         url: string,
@@ -39,19 +83,19 @@ class ApiService {
     }
 
     // Existing methods
-    async getUserCode(): Promise<any> {
+    async getUserCodes(): Promise<UserCode[]> {
         return this.fetchWithToken("/api/user/codes", { method: "GET" });
     }
 
-    async postAdmin(walletAddress: string, signature: number[]): Promise<any> {
+    async postAdmin(address: string, signature: number[]): Promise<ApiResponse<AdminResponse>> {
         return this.fetchWithToken("/api/user/admin", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ walletAddress, signature }),
+            body: JSON.stringify({ walletAddress: address, signature }),
         });
     }
 
-    async checkAdmin(token: string): Promise<any> {
+    async checkAdmin(token: string): Promise<ApiResponse<{ isAdmin: boolean }>> {
         return this.fetchWithToken("/api/user/admin", {
             method: "GET",
             headers: {
@@ -61,25 +105,22 @@ class ApiService {
         });
     }
 
-    async postUserCode(): Promise<any> {
+    async postUserCode(): Promise<ApiResponse<UserCode>> {
         return this.fetchWithToken("/api/user/code", {
             method: "GET",
             headers: { "Content-Type": "application/json" },
         });
     }
 
-    async checkUsercode(code: string,walletAddress:string): Promise<any> {
+    async checkUsercode(code: string, walletAddress: string): Promise<ApiResponse<CheckResponse>> {
         return this.fetchWithToken("/api/user/code/check", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                code,
-                walletAddress
-            }),
+            body: JSON.stringify({ code, walletAddress }),
         });
     }
 
-    async registerUser(address: string, transactionSignature: string): Promise<any> {
+    async registerUser(address: string, transactionSignature: string): Promise<ApiResponse<RegisterResponse>> {
         return this.fetchWithToken("/api/user/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -87,11 +128,11 @@ class ApiService {
         });
     }
 
-    async checkUser(): Promise<any> {
+    async checkUser(): Promise<ApiResponse<{ isAllowed: boolean }>> {
         return this.fetchWithToken("/api/user/check", { method: "GET" });
     }
 
-    async deleteUserCode(id: string): Promise<any> {
+    async deleteUserCode(id: string): Promise<ApiResponse<{ success: boolean }>> {
         return this.fetchWithToken("/api/user/code", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
@@ -99,7 +140,7 @@ class ApiService {
         });
     }
 
-    async updateUserCode(id: string): Promise<any> {
+    async updateUserCode(id: string): Promise<ApiResponse<UserCode>> {
         return this.fetchWithToken("/api/user/code", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -113,7 +154,7 @@ class ApiService {
     }
 
     // New methods
-    async postChat(caption: string, messageHistory: any): Promise<any> {
+    async postChat(caption: string, messageHistory: Message[]): Promise<ApiResponse<ChatResponse>> {
         return this.fetchWithToken("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -121,7 +162,7 @@ class ApiService {
         });
     }
 
-    async postBot(text: string, address: string): Promise<any> {
+    async postBot(text: string, address: string): Promise<ApiResponse<BotResponse>> {
         return this.fetchWithToken("/api/bot", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -129,7 +170,7 @@ class ApiService {
         });
     }
 
-    async postTranscribe(formData: FormData): Promise<any> {
+    async postTranscribe(formData: FormData): Promise<ApiResponse<TranscribeResponse>> {
         return this.fetchWithToken("/api/transcribe", {
             method: "POST",
             body: formData,

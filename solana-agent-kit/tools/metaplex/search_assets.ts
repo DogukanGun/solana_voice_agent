@@ -19,5 +19,7 @@ export async function search_assets(
     throw new Error("This function is not available in UI mode");
   }
   const umi = createUmi(agent.connection.rpcEndpoint).use(dasApi());
+      // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return await umi.rpc.searchAssets(params);
 }

@@ -85,10 +85,12 @@ export async function trade(
       const txHash = await agent.signByUser(swapTransactionBuf.toString("base64"));
       return txHash;
     }
-
+    if(!agent.wallet){
+      throw new Error("Wallet not found");
+    }
     const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
     // Sign and send transaction
-    transaction.sign([agent.wallet]);
+    transaction.sign([agent.wallet!]);
     const signature = await agent.connection.sendTransaction(transaction);
 
     return signature;

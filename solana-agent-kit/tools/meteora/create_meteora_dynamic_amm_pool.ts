@@ -44,7 +44,7 @@ export async function createMeteoraDynamicAMMPool(
     return txHash;
   }
   const initPoolTxHash = await sendTx(agent, initPoolTx.instructions, [
-    agent.wallet,
+    agent.wallet!,
   ]);
 
   return initPoolTxHash;

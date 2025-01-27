@@ -11,7 +11,7 @@ const UserCodesPage: React.FC = () => {
         apiService.postUserCode()
             .then(data => {
                 console.log(data);
-                enqueueSnackbar(`Code created successfully! Code: ${data.code}`, { variant: 'success' });
+                enqueueSnackbar(`Code created successfully! Code: ${data.data.code}`, { variant: 'success' });
             })
             .catch(error => {
                 console.error('Error fetching user code:', error);

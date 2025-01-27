@@ -52,7 +52,7 @@ export async function registerDomain(
       return "";
     }
     const signature = await agent.connection.sendTransaction(transaction, [
-      agent.wallet,
+      agent.wallet!,
     ]);
 
     return signature;

@@ -7,6 +7,16 @@ import Stack from '@mui/material/Stack';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useTheme } from '@mui/material/styles';
 
+type ChartData = {
+    labels: string[];
+    datasets: {
+        label: string;
+        data: number[];
+        borderColor: string;
+        fill: boolean;
+    }[];
+};
+
 export default function PageViewsBarChart() {
   const theme = useTheme();
   const colorPalette = [
@@ -45,10 +55,9 @@ export default function PageViewsBarChart() {
             [
               {
                 scaleType: 'band',
-                categoryGapRatio: 0.5,
                 data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
               },
-            ] as any
+            ]
           }
           series={[
             {

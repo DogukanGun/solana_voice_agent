@@ -42,16 +42,15 @@ export function Sidebar({
   const [localChats, setLocalChats] = useState<
     { chatId: string; messages: Message[] }[]
   >([]);
-  const localChatss = useLocalStorageData("chat_", []);
   const [selectedChatId, setSselectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+       
+  useEffect(() => {
+    setSselectedChatId(chatId);
+  }, [chatId, setSselectedChatId]);
 
   useEffect(() => {
-    if (chatId) {
-      setSselectedChatId(chatId);
-    }
-
     setLocalChats(getLocalstorageChats());
     const handleStorageChange = () => {
       setLocalChats(getLocalstorageChats());

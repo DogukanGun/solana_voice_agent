@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { Message, useChat } from "ai/react";
 import React, { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
@@ -54,10 +54,10 @@ export default function ChatUI() {
       // Trigger the storage event to update the sidebar component
       window.dispatchEvent(new Event("storage"));
     }
-  }, [chatId, isLoading, error]);
+  }, [chatId, isLoading, error, messages]);
 
-  const addMessage = (Message: any) => {
-    messages.push(Message);
+  const addMessage = (innerMessage: Message) => {
+    messages.push(innerMessage);
     window.dispatchEvent(new Event("storage"));
     setMessages([...messages]);
   };

@@ -44,7 +44,7 @@ export async function create_TipLink(
       const signature = await sendAndConfirmTransaction(
         agent.connection,
         transaction,
-        [agent.wallet],
+        [agent.wallet!],
         { commitment: "confirmed" },
       );
 
@@ -108,7 +108,7 @@ export async function create_TipLink(
       const signature = await sendAndConfirmTransaction(
         agent.connection,
         transaction,
-        [agent.wallet],
+        [agent.wallet!],
         { commitment: "confirmed" },
       );
 

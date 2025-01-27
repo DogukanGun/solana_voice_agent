@@ -117,7 +117,7 @@ async function signAndSendTransaction(
     tx.message.recentBlockhash = blockhash;
 
     // Sign the transaction
-    tx.sign([mintKeypair, kit.wallet]);
+    tx.sign([mintKeypair, kit.wallet!]);
 
     // Send and confirm transaction with options
     const signature = await kit.connection.sendTransaction(tx, {

@@ -67,7 +67,7 @@ export async function createMeteoraDlmmPool(
     return txHash;
   }
   const initPoolTxHash = await sendTx(agent, initPoolTx.instructions, [
-    agent.wallet,
+    agent.wallet!,
   ]);
 
   return initPoolTxHash;

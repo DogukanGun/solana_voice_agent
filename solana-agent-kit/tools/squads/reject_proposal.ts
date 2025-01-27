@@ -43,7 +43,7 @@ export async function multisig_reject_proposal(
       const txHash = await agent.signByUser(Buffer.from(multisigTx.serialize()).toString("base64"));
       return txHash;
     }
-    multisigTx.sign([agent.wallet]);
+    multisigTx.sign([agent.wallet!]);
     const tx = await agent.connection.sendRawTransaction(
       multisigTx.serialize(),
     );

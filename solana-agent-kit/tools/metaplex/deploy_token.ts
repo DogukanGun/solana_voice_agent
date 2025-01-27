@@ -13,7 +13,6 @@ import {
   toWeb3JsPublicKey,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import { mplToolbox } from "@metaplex-foundation/mpl-toolbox";
-import { bigint } from "zod";
 
 /**
  * Deploy a new SPL token
@@ -34,7 +33,7 @@ export async function deploy_token(
   initialSupply?: number,
 ): Promise<{ mint: PublicKey }> {
   try {
-    if (agent.isUiMode) {
+    if (agent.isUiMode || !agent.wallet) {
       throw new Error("This function is not available in UI mode");
     }
     // Create UMI instance from agent

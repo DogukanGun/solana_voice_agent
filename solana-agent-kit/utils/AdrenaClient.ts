@@ -39,7 +39,7 @@ export default class AdrenaClient {
     const program = new Program<Adrena>(
       ADRENA_IDL,
       AdrenaClient.programId,
-      new AnchorProvider(agent.connection, new NodeWallet(agent.wallet), {
+      new AnchorProvider(agent.connection, new NodeWallet(agent.wallet!), {
         commitment: "processed",
         skipPreflight: true,
       }),

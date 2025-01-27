@@ -32,7 +32,7 @@ export async function flashOpenTrade(
   params: FlashTradeParams,
 ): Promise<string> {
   try {
-    if(agent.isUiMode){
+    if(agent.isUiMode || !agent.wallet){
       throw new Error("Flash open trade not supported in UI mode")
     }
     const { token, side, collateralUsd, leverage } = params;

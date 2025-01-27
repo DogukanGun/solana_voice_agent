@@ -5,14 +5,11 @@ import { RegisteredUsers } from '@prisma/client';
 import Loader from '../components/LoaderIcon';
 import { apiService } from '../services/ApiService';
 
-interface AuthenticatedProps {
-  user: RegisteredUsers;
-}
 
-export function withAuth<T>(WrappedComponent: React.ComponentType<T & AuthenticatedProps>) {
+export function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
   const WithAuth = (props: T) => {
     const router = useRouter();
-    const [user, setUser] = useState<RegisteredUsers | null>(null);
+    const [user, setUser] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -25,12 +22,12 @@ export function withAuth<T>(WrappedComponent: React.ComponentType<T & Authentica
           }
           const response = await apiService.checkAdmin(localStorage.getItem('token')!)
 
-          if (!response) {
+          if (!response.data.isAdmin) {
             enqueueSnackbar('User is not authenticated', { variant: 'error' });
             router.replace('/');
           }
 
-          setUser(response);
+          setUser(response.data.isAdmin);
         } catch (error) {
           console.error(error);
           router.replace('/');
@@ -50,7 +47,7 @@ export function withAuth<T>(WrappedComponent: React.ComponentType<T & Authentica
       return null; // Render nothing while redirecting
     }
 
-    return <WrappedComponent {...props} user={user} />;
+    return <WrappedComponent {...props} />;
   };
 
   return WithAuth;

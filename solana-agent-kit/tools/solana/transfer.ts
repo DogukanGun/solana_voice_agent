@@ -37,7 +37,7 @@ export async function transfer(
         const txHash = await agent.signByUser(Buffer.from(transaction.serialize()).toString("base64"));
         return txHash;
       }
-      tx = await agent.connection.sendTransaction(transaction, [agent.wallet]);
+      tx = await agent.connection.sendTransaction(transaction, [agent.wallet!]);
     } else {
       // Transfer SPL token
       const fromAta = await getAssociatedTokenAddress(
@@ -62,7 +62,7 @@ export async function transfer(
         const txHash = await agent.signByUser(Buffer.from(transaction.serialize()).toString("base64"));
         return txHash;
       }
-      tx = await agent.connection.sendTransaction(transaction, [agent.wallet]);
+      tx = await agent.connection.sendTransaction(transaction, [agent.wallet!]);
     }
 
     return tx;

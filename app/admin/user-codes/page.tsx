@@ -95,8 +95,8 @@ const UserCode = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await apiService.getUserCode();
-                const data: UserCodeType[] = response.code;
+                const response = await apiService.getUserCodes();
+                const data: UserCodeType[] = response;
                 setRows(data);
             } catch (error) {
                 enqueueSnackbar('Error fetching user codes:', { variant: 'error' });
