@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
-import React, { type ReactNode } from 'react'
-import { createAppKit } from '@reown/appkit/react'
-import { solana } from '@reown/appkit/networks'
-import { ThemeProvider } from 'next-themes'
-import { networks, projectId, solanaAdapter } from '../config'
+import React, { type ReactNode } from "react";
+import { createAppKit } from "@reown/appkit/react";
+import { solana } from "@reown/appkit/networks";
+import { ThemeProvider } from "next-themes";
+import { networks, projectId, solanaAdapter } from "../config";
 
 if (!projectId) {
-  throw new Error('Project ID is not defined')
+  throw new Error("Project ID is not defined");
 }
 
 // Set up metadata
 export const appKitMetadata = {
-  name: 'AppKit Next.js Solana',
-  description: 'AppKit Next.js App Router Solana Example',
-  url: 'https://github.com/0xonerb/next-reown-appkit-ssr', // origin must match your domain & subdomain
-  icons: ['https://avatars.githubusercontent.com/u/179229932']
-}
+  name: "AppKit Next.js Solana",
+  description: "AppKit Next.js App Router Solana Example",
+  url: "https://github.com/0xonerb/next-reown-appkit-ssr", // origin must match your domain & subdomain
+  icons: ["https://avatars.githubusercontent.com/u/179229932"],
+};
 
 // Create the modal
 export const modal = createAppKit({
@@ -25,18 +25,18 @@ export const modal = createAppKit({
   networks,
   defaultNetwork: solana,
   metadata: appKitMetadata,
-  themeMode: 'light',
+  themeMode: "light",
   features: {
-    analytics: true // Optional - defaults to your Cloud configuration
-  }
-})
+    analytics: true, // Optional - defaults to your Cloud configuration
+  },
+});
 
 function ContextProvider({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       {children}
     </ThemeProvider>
-  )
+  );
 }
 
-export default ContextProvider
+export default ContextProvider;

@@ -39,11 +39,7 @@ export default function CodeDisplayBlock({ code, lang }: ButtonCodeblockProps) {
         )}
       </Button>
       <CodeBlock
-        customStyle={
-          theme === "dark"
-            ? { background: "#303033" }
-            : { background: "#fcfcfc" }
-        }
+        customStyle={theme === "dark" ? { background: "#303033" } : { background: "#fcfcfc" }}
         text={code}
         language="tsx"
         showLineNumbers={false}

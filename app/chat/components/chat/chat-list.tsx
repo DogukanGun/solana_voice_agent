@@ -8,11 +8,7 @@ import CodeDisplayBlock from "../code-display-block";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function ChatList({
-  messages,
-  isLoading,
-  loadingSubmit,
-}: ChatProps) {
+export default function ChatList({ messages, isLoading, loadingSubmit }: ChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [name, setName] = React.useState<string>("");
 
@@ -44,21 +40,15 @@ export default function ChatList({
               height={60}
               className="h-20 w-14 object-contain"
             />
-            <p className="text-center text-lg text-muted-foreground">
-              How can I help you today?
-            </p>
+            <p className="text-center text-lg text-muted-foreground">How can I help you today?</p>
           </div>
-
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      id="scroller"
-      className="w-full overflow-y-scroll overflow-x-hidden h-full justify-end"
-    >
+    <div id="scroller" className="w-full overflow-y-scroll overflow-x-hidden h-full justify-end">
       <div className="w-full flex flex-col overflow-x-hidden overflow-y-hidden min-h-full justify-end">
         {messages.map((message, index) => (
           <motion.div
@@ -77,7 +67,7 @@ export default function ChatList({
             }}
             className={cn(
               "flex flex-col gap-2 p-4 whitespace-pre-wrap",
-              message.role === "user" ? "items-end" : "items-start"
+              message.role === "user" ? "items-end" : "items-start",
             )}
           >
             <div className="flex gap-3 items-center">
@@ -94,9 +84,7 @@ export default function ChatList({
                       height={6}
                       className="object-contain"
                     />
-                    <AvatarFallback>
-                      {name && name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{name && name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </div>
               )}
@@ -128,12 +116,11 @@ export default function ChatList({
                         );
                       }
                     })}
-                    {isLoading &&
-                      messages.indexOf(message) === messages.length - 1 && (
-                        <span className="animate-pulse bg-black" aria-label="Typing">
-                          ...
-                        </span>
-                      )}
+                    {isLoading && messages.indexOf(message) === messages.length - 1 && (
+                      <span className="animate-pulse bg-black" aria-label="Typing">
+                        ...
+                      </span>
+                    )}
                   </span>
                 </div>
               )}

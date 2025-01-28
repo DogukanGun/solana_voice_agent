@@ -17,11 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "./ui/button";
 
@@ -33,19 +29,12 @@ interface SidebarProps {
   chatId: string;
 }
 
-export function Sidebar({
-  messages,
-  isCollapsed,
-  isMobile,
-  chatId,
-}: SidebarProps) {
-  const [localChats, setLocalChats] = useState<
-    { chatId: string; messages: Message[] }[]
-  >([]);
+export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProps) {
+  const [localChats, setLocalChats] = useState<{ chatId: string; messages: Message[] }[]>([]);
   const [selectedChatId, setSselectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-       
+
   useEffect(() => {
     setSselectedChatId(chatId);
   }, [chatId, setSselectedChatId]);
@@ -65,9 +54,7 @@ export function Sidebar({
     chatId: string;
     messages: Message[];
   }[] => {
-    const chats = Object.keys(localStorage).filter((key) =>
-      key.startsWith("chat_")
-    );
+    const chats = Object.keys(localStorage).filter((key) => key.startsWith("chat_"));
 
     if (chats.length === 0) {
       setIsLoading(false);
@@ -76,9 +63,7 @@ export function Sidebar({
     // Map through the chats and return an object with chatId and messages
     const chatObjects = chats.map((chat) => {
       const item = localStorage.getItem(chat);
-      return item
-        ? { chatId: chat, messages: JSON.parse(item) }
-        : { chatId: "", messages: [] };
+      return item ? { chatId: chat, messages: JSON.parse(item) } : { chatId: "", messages: [] };
     });
 
     // Sort chats by the createdAt date of the first message of each chat
@@ -166,12 +151,10 @@ export function Sidebar({
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader className="space-y-4">
-                            <DialogTitle className="text-orange-500">
-                              Delete chat?
-                            </DialogTitle>
+                            <DialogTitle className="text-orange-500">Delete chat?</DialogTitle>
                             <DialogDescription className="text-orange-500">
-                              Are you sure you want to delete this chat? This action
-                              cannot be undone.
+                              Are you sure you want to delete this chat? This action cannot be
+                              undone.
                             </DialogDescription>
                             <div className="flex justify-end gap-2">
                               <Button variant="outline">Cancel</Button>

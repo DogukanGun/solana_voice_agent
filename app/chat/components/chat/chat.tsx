@@ -12,7 +12,7 @@ export interface ChatProps {
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (
     e: React.FormEvent<HTMLFormElement>,
-    chatRequestOptions?: ChatRequestOptions
+    chatRequestOptions?: ChatRequestOptions,
   ) => void;
   isLoading: boolean;
   loadingSubmit?: boolean;
@@ -37,14 +37,10 @@ export default function Chat({
   isMobile,
   setInput,
 }: ChatProps) {
-  const [attestationReport, setAttestationReport] = useState<boolean>(false)
+  const [attestationReport, setAttestationReport] = useState<boolean>(false);
   return (
     <div className="flex flex-col justify-between w-full max-w-3xl h-full ">
-      <ChatTopbar
-        isLoading={isLoading}
-        chatId={chatId}
-        messages={messages}
-      />
+      <ChatTopbar isLoading={isLoading} chatId={chatId} messages={messages} />
 
       <ChatList
         messages={messages}

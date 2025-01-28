@@ -24,7 +24,6 @@ export default function ChatBottombar({
     }
   };
 
-
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -36,18 +35,11 @@ export default function ChatBottombar({
       <AnimatePresence initial={false}>
         <div className="w-full items-center flex relative gap-2">
           <div className="absolute left-3 z-10">
-            <Button
-              className="shrink-0 rounded-full"
-              variant="ghost"
-              size="icon"
-            >
+            <Button className="shrink-0 rounded-full" variant="ghost" size="icon">
               <ImageIcon className="w-5 h-5" />
             </Button>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            className="w-full items-center flex relative gap-2"
-          >
+          <form onSubmit={handleSubmit} className="w-full items-center flex relative gap-2">
             <TextareaAutosize
               autoComplete="off"
               value={input}
@@ -61,7 +53,6 @@ export default function ChatBottombar({
 
             {!isLoading ? (
               <div className="flex absolute right-3 items-center">
-
                 <Button
                   className="shrink-0 rounded-full"
                   variant="ghost"

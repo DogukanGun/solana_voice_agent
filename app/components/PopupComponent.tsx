@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { buttonClass } from "./ButtonClass";
 
 interface PopupComponentProps {
-    handleSubscribe: () => void;
-    handleCheckCode: (accessCode:string) => void;
+  handleSubscribe: () => void;
+  handleCheckCode: (accessCode: string) => void;
 }
 
-const PopupComponent:React.FC<PopupComponentProps> = ({handleSubscribe, handleCheckCode}) => {
-    const [accessCode, setAccessCode] = useState<string>("");
+const PopupComponent: React.FC<PopupComponentProps> = ({ handleSubscribe, handleCheckCode }) => {
+  const [accessCode, setAccessCode] = useState<string>("");
 
-    return (
+  return (
     <div className="popup text-center bg-slate-500 rounded-lg p-8">
       <h2 className="text-2xl py-2">Subscription Required</h2>
       <p>You need to pay $10 to subscribe.</p>
@@ -27,13 +27,16 @@ const PopupComponent:React.FC<PopupComponentProps> = ({handleSubscribe, handleCh
             value={accessCode}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccessCode(e.target.value)}
           />
-          <button onClick={()=>handleCheckCode(accessCode)} className="bg-blue-500 text-white rounded-r-2xl px-4 py-2">
+          <button
+            onClick={() => handleCheckCode(accessCode)}
+            className="bg-blue-500 text-white rounded-r-2xl px-4 py-2"
+          >
             Submit
           </button>
         </div>
       </div>
     </div>
-    )
+  );
 };
 
 export default PopupComponent;

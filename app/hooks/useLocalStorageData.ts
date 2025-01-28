@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export const useLocalStorageData = (key: string, initialValue: never) => {
   const [data, setData] = useState(initialValue);
-  
+
   useEffect(() => {
     const handleStorageChange = () => {
       const value = localStorage.getItem(key);
@@ -22,10 +22,10 @@ export const useLocalStorageData = (key: string, initialValue: never) => {
     fetchData();
 
     // Listen for storage changes
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [key]);
 

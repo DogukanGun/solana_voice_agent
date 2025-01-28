@@ -9,7 +9,9 @@
     "start": "next start -p 9000",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prettier:fix": "prettier --write \"app/**/*.{ts,tsx}\" --config .prettierrc",
+    "prettier:check": "prettier --check \"app/**/*.{ts,tsx}\" --config .prettierrc"
   },
   "dependencies": {
     "@3land/listings-sdk": "^0.0.6",
