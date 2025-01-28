@@ -21,12 +21,12 @@ export function withAuth<T extends object>(WrappedComponent: React.ComponentType
           }
           const response = await apiService.checkAdmin(localStorage.getItem("token")!);
 
-          if (!response.data.isAdmin) {
+          if (!response.isAdmin) {
             enqueueSnackbar("User is not authenticated", { variant: "error" });
             router.replace("/");
           }
 
-          setUser(response.data.isAdmin);
+          setUser(response.isAdmin);
         } catch (error) {
           console.error(error);
           router.replace("/");

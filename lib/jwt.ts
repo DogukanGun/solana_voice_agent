@@ -8,3 +8,9 @@ export const verifyJWT = (token:string) => {
   }
 };
 
+export const updateLocalToken = (token: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('token', token);
+  }
+};
+

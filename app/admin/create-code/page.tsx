@@ -11,7 +11,7 @@ const UserCodesPage: React.FC = () => {
       .postUserCode()
       .then((data) => {
         console.log(data);
-        enqueueSnackbar(`Code created successfully! Code: ${data.data.code}`, {
+        enqueueSnackbar(`Code created successfully! Code: ${data.code}`, {
           variant: "success",
         });
       })

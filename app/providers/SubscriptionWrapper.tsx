@@ -37,7 +37,7 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
         return;
       }
       const checkUsercodeRes = await apiService.checkUsercode(accessCode, address);
-      if (checkUsercodeRes.data.exists) {
+      if (checkUsercodeRes.exists) {
         setIsAllowed(true);
         setShowPopup(false);
       } else {

@@ -10,6 +10,10 @@ import { useAppKitAccount } from "../config";
 import { VersionedTransaction } from "@solana/web3.js";
 import { useAppKitProvider } from "@reown/appkit/react";
 import SubscriptionWrapper from "../providers/SubscriptionWrapper";
+import RequireConfig from "../components/RequireConfig";
+import { apiService } from "@/app/services/ApiService";
+import WalletButton from "../components/WalletButton";
+import { useRouter } from "next/navigation";
 
 export default function ChatUI() {
   const { messages, input, handleInputChange, isLoading, error, stop, setMessages, setInput } =
@@ -27,17 +31,35 @@ export default function ChatUI() {
   const [chatId, setChatId] = React.useState<string>("");
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const { address } = useAppKitAccount();
+  const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>("solana");
+  const router = useRouter();
+
+  // Add state for modal
+  const [showWalletModal, setShowWalletModal] = React.useState(false);
 
   useEffect(() => {
+    const loadHistoricalMessages = () => {
+      // Check if we're returning to an existing chat
+      const chatIdFromPath = window.location.pathname.split('/').pop();
+      if (chatIdFromPath && chatIdFromPath !== 'chat') {
+        const storedMessages = localStorage.getItem(`chat_${chatIdFromPath}`);
+        if (storedMessages) {
+          const parsedMessages = JSON.parse(storedMessages);
+          setMessages(parsedMessages);
+          setChatId(chatIdFromPath);
+        }
+      } else {
+        // Generate a new chat ID if we're not returning to an existing chat
+        const id = uuidv4();
+        setChatId(id);
+      }
+    };
+
     if (messages.length < 1) {
-      // Generate a random id for the chat
-      console.log("Generating chat id");
-      const id = uuidv4();
-      setChatId(id);
+      loadHistoricalMessages();
     }
-  }, [messages]);
+  }, [setMessages]);
 
   React.useEffect(() => {
     if (!isLoading && !error && chatId && messages.length > 0) {
@@ -47,6 +69,15 @@ export default function ChatUI() {
       window.dispatchEvent(new Event("storage"));
     }
   }, [chatId, isLoading, error, messages]);
+
+  // Check wallet connection on mount and when connection status changes
+  useEffect(() => {
+    if (!isConnected) {
+      setShowWalletModal(true);
+    } else {
+      setShowWalletModal(false);
+    }
+  }, [isConnected]);
 
   const addMessage = (innerMessage: Message) => {
     messages.push(innerMessage);
@@ -61,55 +92,43 @@ export default function ChatUI() {
     addMessage({ role: "user", content: input, id: chatId });
     setInput("");
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ caption: input, messageHistory: messages }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch audio");
-    }
-    const { text } = await response.json(); // Destructure text and audio
-    console.log("Text", text);
-    if (text.includes("sol_ai")) {
-      const res = await (
-        await fetch("/api/bot", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text: text.split("op")[0], address }),
-        })
-      ).json();
-      console.log("Bot response", res.text);
-      if (res.text) {
-        addMessage({ role: "assistant", content: res.text, id: chatId });
-        setMessages([...messages]);
-        setLoadingSubmit(false);
-      } else {
-        const serializedTransaction = Buffer.from(res.transaction, "base64");
-        const tx = VersionedTransaction.deserialize(serializedTransaction);
-        try {
-          await walletProvider.signAndSendTransaction(tx);
-        } catch (e) {
-          console.log(e);
-          addMessage({
-            role: "assistant",
-            content: "Transaction failed, please try again",
-            id: chatId,
-          });
+    try {
+      const { text } = await apiService.postChat(input, messages);
+      console.log("Text", text);
+      
+      if (text.includes("sol_ai")) {
+        const res = await apiService.postBot(text, address!);
+        console.log("Bot response", res.text);
+        
+        if (res.text) {
+          addMessage({ role: "assistant", content: res.text, id: chatId });
           setMessages([...messages]);
           setLoadingSubmit(false);
+        } else {
+          const serializedTransaction = Buffer.from(res.transaction!, "base64");
+          const tx = VersionedTransaction.deserialize(serializedTransaction);
+          try {
+            await walletProvider.signAndSendTransaction(tx);
+          } catch (e) {
+            console.log(e);
+            addMessage({
+              role: "assistant",
+              content: "Transaction failed, please try again",
+              id: chatId,
+            });
+            setMessages([...messages]);
+            setLoadingSubmit(false);
+          }
         }
+      } else {
+        console.log(text.includes("sol_ai"));
+        addMessage({ role: "assistant", content: text, id: chatId });
+        setMessages([...messages]);
+        setLoadingSubmit(false);
       }
-    } else {
-      console.log(text.includes("sol_ai"));
-      addMessage({ role: "assistant", content: text, id: chatId });
-      setMessages([...messages]);
+    } catch (error) {
+      console.error("Error in chat:", error);
+      toast.error("An error occurred. Please try again.");
       setLoadingSubmit(false);
     }
   };
@@ -124,24 +143,49 @@ export default function ChatUI() {
 
   return (
     <main className="flex h-[calc(90dvh)] flex-col items-center ">
-      <SubscriptionWrapper>
-        <ChatLayout
-          chatId={chatId}
-          messages={messages}
-          input={input}
-          handleInputChange={handleInputChange}
-          handleSubmit={onSubmit}
-          isLoading={isLoading}
-          loadingSubmit={loadingSubmit}
-          error={error}
-          stop={stop}
-          navCollapsedSize={10}
-          defaultLayout={[30, 160]}
-          formRef={formRef}
-          setMessages={setMessages}
-          setInput={setInput}
-        />
-      </SubscriptionWrapper>
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+              Connect Your Wallet
+            </h2>
+            <p className="text-gray-600 mb-6 text-center">
+              Please connect your wallet to continue using the chat.
+            </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-center">
+                <WalletButton />
+              </div>
+              <button
+                onClick={() => router.push('/app')}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+              >
+                Go Home
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <RequireConfig>
+        <SubscriptionWrapper>
+          <ChatLayout
+            chatId={chatId}
+            messages={messages}
+            input={input}
+            handleInputChange={handleInputChange}
+            handleSubmit={onSubmit}
+            isLoading={isLoading}
+            loadingSubmit={loadingSubmit}
+            error={error}
+            stop={stop}
+            navCollapsedSize={10}
+            defaultLayout={[30, 160]}
+            formRef={formRef}
+            setMessages={setMessages}
+            setInput={setInput}
+          />
+        </SubscriptionWrapper>
+      </RequireConfig>
     </main>
   );
 }

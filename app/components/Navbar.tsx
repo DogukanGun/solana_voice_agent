@@ -1,46 +1,13 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { buttonClass, message } from "./ButtonClass";
+import { usePathname } from "next/navigation";
+import { buttonClass } from "./ButtonClass";
 import { useAppKitAccount } from "../config";
-import { useAppKit, useAppKitProvider, useDisconnect } from "@reown/appkit/react";
-import type { Provider } from "@reown/appkit-adapter-solana";
-import { useSnackbar } from "notistack";
-import { apiService } from "../services/ApiService";
-import Image from "next/image";
 import WalletButton from "./WalletButton";
 
 const Navbar = () => {
   const path = usePathname();
-  const { enqueueSnackbar } = useSnackbar();
-  const { open, close } = useAppKit();
-  const router = useRouter();
-  const { address, isConnected } = useAppKitAccount();
-  const { walletProvider } = useAppKitProvider<Provider>("solana");
-  const { disconnect } = useDisconnect();
-
-  const signMessage = async () => {
-    if (!walletProvider || !address) {
-      throw Error("user is disconnected");
-    }
-
-    const encodedMessage = new TextEncoder().encode(message);
-    const signature = await walletProvider.signMessage(encodedMessage);
-
-    try {
-      const pRes = await apiService.postAdmin(address, Array.from(signature));
-      if (!pRes.data.token) {
-        throw new Error("Failed to fetch token");
-      }
-
-      localStorage.setItem("token", pRes.data.token);
-      enqueueSnackbar(`Message signed successfully!`, { variant: "success" });
-      enqueueSnackbar(`Redirecting to admin page`, { variant: "success" });
-      router.push("/admin");
-    } catch (error) {
-      enqueueSnackbar(`Don\'t need to sign`, { variant: "error" });
-    }
-  };
+  const {  isConnected } = useAppKitAccount();
 
   return (
     <div className="drawer">

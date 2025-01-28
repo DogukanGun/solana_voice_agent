@@ -8,6 +8,7 @@ import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import type { Provider } from "@reown/appkit-adapter-solana";
 import { VersionedTransaction } from "@solana/web3.js";
+import { apiService } from "@/app/services/ApiService";
 
 export default function Microphone() {
   const [micOpen, setMicOpen] = useState(false);
@@ -54,11 +55,7 @@ export default function Microphone() {
 
   const readVoice = async (formData: FormData) => {
     try {
-      const response = await fetch("/api/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.json();
+      const result = await apiService.postTranscribe(formData);
       console.log("Transcription:", result.text);
       setCaption(result.text);
       setMessageHistory((prev) => [...prev, { role: "user", content: result.text }]);
@@ -70,37 +67,18 @@ export default function Microphone() {
 
   const generateAudio = async (caption: string) => {
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ caption, messageHistory }),
-      });
+      const { text, audio } = await apiService.postChat(caption, messageHistory);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch audio");
-      }
-      const { text, audio } = await response.json(); // Destructure text and audio
       if (text.includes("sol_ai")) {
-        const res = await (
-          await fetch("/api/bot", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text: text.split("op")[0], address }),
-          })
-        ).json();
+        const res = await apiService.postBot(text, address!);
 
-        const serializedTransaction = Buffer.from(res.transaction, "base64");
+        const serializedTransaction = Buffer.from(res.transaction!, "base64");
         const tx = VersionedTransaction.deserialize(serializedTransaction);
         await walletProvider.signAndSendTransaction(tx);
       } else {
-        setCaption(text); // Update the UI with the returned text
+        setCaption(text);
 
-        const audioBlob = new Blob([Uint8Array.from(atob(audio), (c) => c.charCodeAt(0))], {
+        const audioBlob = new Blob([Uint8Array.from(atob(audio!), (c) => c.charCodeAt(0))], {
           type: "audio/mpeg",
         });
         const audioUrl = URL.createObjectURL(audioBlob);

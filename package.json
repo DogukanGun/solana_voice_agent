@@ -123,7 +123,8 @@
     "tweetnacl-util": "^0.15.1",
     "typedoc": "^0.27.6",
     "uuid": "^11.0.5",
-    "zod": "link:@hookform/resolvers/zod"
+    "zod": "link:@hookform/resolvers/zod",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

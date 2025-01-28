@@ -24,11 +24,11 @@ const WalletButton = () => {
 
     try {
       const pRes = await apiService.postAdmin(address, Array.from(signature));
-      if (!pRes.data.token) {
+      if (!pRes.token) {
         throw new Error("Failed to fetch token");
       }
 
-      localStorage.setItem("token", pRes.data.token);
+      localStorage.setItem("token", pRes.token);
       enqueueSnackbar(`Message signed successfully!`, { variant: "success" });
       enqueueSnackbar(`Redirecting to admin page`, { variant: "success" });
       router.push("/admin");

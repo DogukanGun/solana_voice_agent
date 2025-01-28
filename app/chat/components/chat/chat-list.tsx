@@ -36,11 +36,11 @@ export default function ChatList({ messages, isLoading, loadingSubmit }: ChatPro
             <Image
               src="/nexarb.png"
               alt="AI"
-              width={60}
-              height={60}
-              className="h-20 w-14 object-contain"
+              width={200}
+              height={200}
+              className="object-contain"
             />
-            <p className="text-center text-lg text-muted-foreground">How can I help you today?</p>
+            <p className="text-center text-black text-lg text-muted-foreground">How can I help you today?</p>
           </div>
         </div>
       </div>

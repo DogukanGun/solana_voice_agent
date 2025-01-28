@@ -33,6 +33,7 @@ export function ChatLayout({
   loadingSubmit,
   formRef,
   setInput,
+  setMessages,
 }: MergedProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
@@ -53,6 +54,16 @@ export function ChatLayout({
       window.removeEventListener("resize", checkScreenWidth);
     };
   }, []);
+
+  // Add this useEffect to handle chat switching
+  useEffect(() => {
+    if (chatId) {
+      const storedMessages = localStorage.getItem(`chat_${chatId}`);
+      if (storedMessages) {
+        setMessages(JSON.parse(storedMessages));
+      }
+    }
+  }, [chatId, setMessages]);
 
   return (
     <ResizablePanelGroup

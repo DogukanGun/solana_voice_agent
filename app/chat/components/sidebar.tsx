@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
-import { cn } from "@/app/lib/utils";
 import { Message } from "ai/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import SidebarSkeleton from "./sidebar-skeleton";
 import UserSettings from "./user-settings";
-import { useLocalStorageData } from "@/app/hooks/useLocalStorageData";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +16,7 @@ import {
 } from "./ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { Button, buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -82,6 +79,13 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
     setLocalChats(getLocalstorageChats());
   };
 
+  const handleChatClick = (chatId: string) => {
+    const storedMessages = localStorage.getItem(chatId);
+    if (storedMessages) {
+      router.push(`/${chatId.substr(5)}`);
+    }
+  };
+
   return (
     <div
       data-collapsed={isCollapsed}
@@ -115,10 +119,10 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
           {localChats.length > 0 && (
             <div>
               {localChats.map(({ chatId, messages }, index) => (
-                <Link
+                <div
                   key={index}
-                  href={`/${chatId.substr(5)}`}
-                  className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500"
+                  onClick={() => handleChatClick(chatId)}
+                  className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500 cursor-pointer"
                 >
                   <div className="flex gap-2 items-center truncate">
                     <div className="flex flex-col">
@@ -170,7 +174,7 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
                       </Dialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </Link>
+                </div>
               ))}
             </div>
           )}
