@@ -22,7 +22,7 @@ export default function PaymentRequiredModal({ provider, onClose }: PaymentRequi
           <li>Enter a special access code</li>
         </ul>
         <p className="text-gray-400 text-sm mb-6">
-          You'll be prompted for payment or code verification when you start using the AI.
+          You&apos;ll be prompted for payment or code verification when you start using the AI.
         </p>
         <button
           onClick={onClose}
