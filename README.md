@@ -15,6 +15,4 @@ This application provides two interfaces for interacting with the SEND AI framew
 
 ## DEMO VIDEO 
 
-
-https://github.com/user-attachments/assets/1032b5b3-9cca-4c9f-a4a1-b445e2f74935
-
+https://www.loom.com/share/5aa7e2277b2f42fb891cb44bdf8d4a90?sid=0df78a3a-3dd9-4765-aebb-cfb3f9b1a9ce
