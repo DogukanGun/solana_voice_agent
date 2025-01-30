@@ -22,6 +22,12 @@ const chains = [
     icon: "/icons/solana.svg",
   },
   {
+    id: "eigenlayer",
+    name: "Eigenlayer",
+    disabled: true,
+    icon: "/icons/eigenlayer.svg",
+  },
+  {
     id: "ethereum",
     name: "Ethereum",
     disabled: true,
@@ -54,14 +60,20 @@ const chains = [
 ];
 
 const llmProviders = [
-  { id: "claude", name: "Claude" },
+  {
+    id: "claude", disabled: true,
+    name: "Claude"
+  },
   { id: "openai", name: "OpenAI" },
-  { id: "llama", name: "Llama 3.1" },
+  {
+    id: "llama", disabled: true,
+    name: "Llama 3.1"
+  },
 ];
 
 const agentTypes = [
-  { id: "voice", name: "Voice Agent" },
-  { id: "text", name: "Text Agent" },
+  { id: "voice", name: "Voice Agent", disabled: false },
+  { id: "text", name: "Text Agent", disabled: false },
 ];
 
 const StepperHeader = ({ currentStep, totalSteps }: StepperProps) => {
@@ -71,17 +83,15 @@ const StepperHeader = ({ currentStep, totalSteps }: StepperProps) => {
         {[...Array(totalSteps)].map((_, index) => (
           <div key={index} className="flex items-center flex-1 last:flex-initial">
             <div
-              className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                index + 1 <= currentStep ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
-              }`}
+              className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${index + 1 <= currentStep ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+                }`}
             >
               {index + 1}
             </div>
             {index < totalSteps - 1 && (
               <div
-                className={`h-1 w-full mx-2 flex-grow ${
-                  index + 1 < currentStep ? "bg-blue-500" : "bg-gray-200"
-                }`}
+                className={`h-1 w-full mx-2 flex-grow ${index + 1 < currentStep ? "bg-blue-500" : "bg-gray-200"
+                  }`}
               />
             )}
           </div>
@@ -112,6 +122,11 @@ export default function Home() {
   };
 
   const handleLLMSelection = (llmId: string) => {
+    const selectedProvider = llmProviders.find(provider => provider.id === llmId);
+    if (selectedProvider?.disabled) {
+      return; // Prevent selection if the provider is disabled
+    }
+    
     if (llmId === 'claude' || llmId === 'openai') {
       setSelectedProvider(llmId === 'claude' ? 'Claude' : 'OpenAI');
       setShowPaymentModal(true);
@@ -120,6 +135,11 @@ export default function Home() {
   };
 
   const handleAgentTypeSelection = (typeId: string) => {
+    const selectedType = agentTypes.find(type => type.id === typeId);
+    if (selectedType?.disabled) {
+      return; // Prevent selection if the agent type is disabled
+    }
+    
     setSelectedAgentType((prev) => (prev === typeId ? "" : typeId));
   };
 
@@ -151,7 +171,7 @@ export default function Home() {
 
     const res = await apiService.updateToken(address!);
     updateLocalToken(res.token);
-    
+
     if (selectedAgentType === "voice") {
       router.push("/voice");
     } else if (selectedAgentType === "text") {
@@ -217,7 +237,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center px-0">
       {showPaymentModal && (
         <PaymentRequiredModal
           provider={selectedProvider}
@@ -229,8 +249,8 @@ export default function Home() {
           onClose={() => setShowWalletModal(false)}
         />
       )}
-      
-      <div className="w-full max-w-3xl bg-black rounded-lg p-8">
+
+      <div className="w-full h-screen bg-black rounded-none p-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text mb-2">
             NexAI Wallet
@@ -250,12 +270,11 @@ export default function Home() {
                     key={chain.id}
                     onClick={() => !chain.disabled && handleChainSelection(chain.id)}
                     className={`
-                      ${
-                        chain.disabled
-                          ? "opacity-50 cursor-not-allowed"
-                          : selectedChains.includes(chain.id)
-                            ? selectedButtonClass
-                            : buttonClass
+                      ${chain.disabled
+                        ? "opacity-50 cursor-not-allowed"
+                        : selectedChains.includes(chain.id)
+                          ? selectedButtonClass
+                          : buttonClass
                       }
                       ${cardClass}
                     `}
@@ -291,13 +310,24 @@ export default function Home() {
                     key={provider.id}
                     onClick={() => handleLLMSelection(provider.id)}
                     className={`
-                      ${selectedLLM === provider.id ? selectedButtonClass : buttonClass}
+                      ${provider.disabled
+                        ? "opacity-50 cursor-not-allowed"
+                        : selectedLLM === provider.id
+                          ? selectedButtonClass
+                          : buttonClass
+                      }
                       ${cardClass}
                     `}
+                    disabled={provider.disabled}
                   >
                     <div className={buttonContentClass}>
                       <span className={buttonTextClass}>{provider.name}</span>
                     </div>
+                    {provider.disabled && (
+                      <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
+                        Coming Soon
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -313,13 +343,24 @@ export default function Home() {
                     key={type.id}
                     onClick={() => handleAgentTypeSelection(type.id)}
                     className={`
-                      ${selectedAgentType === type.id ? selectedButtonClass : buttonClass}
+                      ${type.disabled
+                        ? "opacity-50 cursor-not-allowed"
+                        : selectedAgentType === type.id
+                          ? selectedButtonClass
+                          : buttonClass
+                      }
                       ${cardClass}
                     `}
+                    disabled={type.disabled}
                   >
                     <div className={buttonContentClass}>
                       <span className={buttonTextClass}>{type.name}</span>
                     </div>
+                    {type.disabled && (
+                      <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
+                        Coming Soon
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -337,9 +378,8 @@ export default function Home() {
               <div className="relative group">
                 <button
                   onClick={handleStart}
-                  className={`${primaryButtonClass} ${
-                    !selectedAgentType ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`${primaryButtonClass} ${!selectedAgentType ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   disabled={!selectedAgentType}
                 >
                   Start
@@ -357,9 +397,8 @@ export default function Home() {
               <div className="relative group">
                 <button
                   onClick={handleNext}
-                  className={`${buttonClass} ${
-                    !isStepValid(currentStep) ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`${buttonClass} ${!isStepValid(currentStep) ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   disabled={!isStepValid(currentStep)}
                 >
                   Next
