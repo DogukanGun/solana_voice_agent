@@ -33,6 +33,7 @@ export function ChatLayout({
   loadingSubmit,
   formRef,
   setInput,
+  setMessages,
 }: MergedProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
@@ -54,13 +55,21 @@ export function ChatLayout({
     };
   }, []);
 
+  // Add this useEffect to handle chat switching
+  useEffect(() => {
+    if (chatId) {
+      const storedMessages = localStorage.getItem(`chat_${chatId}`);
+      if (storedMessages) {
+        setMessages(JSON.parse(storedMessages));
+      }
+    }
+  }, [chatId, setMessages]);
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
       onLayout={(sizes: number[]) => {
-        document.cookie = `react-resizable-panels:layout=${JSON.stringify(
-          sizes
-        )}`;
+        document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`;
       }}
       className="h-screen items-stretch"
     >
@@ -72,20 +81,16 @@ export function ChatLayout({
         maxSize={isMobile ? 0 : 16}
         onCollapse={() => {
           setIsCollapsed(true);
-          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-            true
-          )}`;
+          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(true)}`;
         }}
         onExpand={() => {
           setIsCollapsed(false);
-          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-            false
-          )}`;
+          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(false)}`;
         }}
         className={cn(
           isCollapsed
             ? "min-w-[50px] md:min-w-[70px] transition-all duration-300 ease-in-out"
-            : "hidden md:block"
+            : "hidden md:block",
         )}
       >
         <Sidebar
@@ -96,10 +101,7 @@ export function ChatLayout({
         />
       </ResizablePanel>
       <ResizableHandle className={cn("hidden md:flex")} withHandle />
-      <ResizablePanel
-        className="h-full w-full flex justify-center"
-        defaultSize={defaultLayout[1]}
-      >
+      <ResizablePanel className="h-full w-full flex justify-center" defaultSize={defaultLayout[1]}>
         <Chat
           chatId={chatId}
           messages={messages}

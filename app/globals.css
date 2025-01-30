@@ -4,13 +4,14 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #2d2d2d;
+  --background-gradient: linear-gradient(to bottom right, #ffffff, #f5f7fa);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #2b2b2b;
-    --foreground: #ededed;
+    --background: #e9ebf0;
+    --foreground: #ffffff;
   }
 }
 
@@ -18,4 +19,5 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
 }

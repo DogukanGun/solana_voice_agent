@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
-import { cn } from "@/app/lib/utils";
 import { Message } from "ai/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import SidebarSkeleton from "./sidebar-skeleton";
 import UserSettings from "./user-settings";
-import { useLocalStorageData } from "@/app/hooks/useLocalStorageData";
 import {
   Dialog,
   DialogContent,
@@ -17,13 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { Button, buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -33,19 +26,12 @@ interface SidebarProps {
   chatId: string;
 }
 
-export function Sidebar({
-  messages,
-  isCollapsed,
-  isMobile,
-  chatId,
-}: SidebarProps) {
-  const [localChats, setLocalChats] = useState<
-    { chatId: string; messages: Message[] }[]
-  >([]);
+export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProps) {
+  const [localChats, setLocalChats] = useState<{ chatId: string; messages: Message[] }[]>([]);
   const [selectedChatId, setSselectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-       
+
   useEffect(() => {
     setSselectedChatId(chatId);
   }, [chatId, setSselectedChatId]);
@@ -65,9 +51,7 @@ export function Sidebar({
     chatId: string;
     messages: Message[];
   }[] => {
-    const chats = Object.keys(localStorage).filter((key) =>
-      key.startsWith("chat_")
-    );
+    const chats = Object.keys(localStorage).filter((key) => key.startsWith("chat_"));
 
     if (chats.length === 0) {
       setIsLoading(false);
@@ -76,9 +60,7 @@ export function Sidebar({
     // Map through the chats and return an object with chatId and messages
     const chatObjects = chats.map((chat) => {
       const item = localStorage.getItem(chat);
-      return item
-        ? { chatId: chat, messages: JSON.parse(item) }
-        : { chatId: "", messages: [] };
+      return item ? { chatId: chat, messages: JSON.parse(item) } : { chatId: "", messages: [] };
     });
 
     // Sort chats by the createdAt date of the first message of each chat
@@ -95,6 +77,13 @@ export function Sidebar({
   const handleDeleteChat = (chatId: string) => {
     localStorage.removeItem(chatId);
     setLocalChats(getLocalstorageChats());
+  };
+
+  const handleChatClick = (chatId: string) => {
+    const storedMessages = localStorage.getItem(chatId);
+    if (storedMessages) {
+      router.push(`/${chatId.substr(5)}`);
+    }
   };
 
   return (
@@ -130,10 +119,10 @@ export function Sidebar({
           {localChats.length > 0 && (
             <div>
               {localChats.map(({ chatId, messages }, index) => (
-                <Link
+                <div
                   key={index}
-                  href={`/${chatId.substr(5)}`}
-                  className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500"
+                  onClick={() => handleChatClick(chatId)}
+                  className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500 cursor-pointer"
                 >
                   <div className="flex gap-2 items-center truncate">
                     <div className="flex flex-col">
@@ -166,12 +155,10 @@ export function Sidebar({
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader className="space-y-4">
-                            <DialogTitle className="text-orange-500">
-                              Delete chat?
-                            </DialogTitle>
+                            <DialogTitle className="text-orange-500">Delete chat?</DialogTitle>
                             <DialogDescription className="text-orange-500">
-                              Are you sure you want to delete this chat? This action
-                              cannot be undone.
+                              Are you sure you want to delete this chat? This action cannot be
+                              undone.
                             </DialogDescription>
                             <div className="flex justify-end gap-2">
                               <Button variant="outline">Cancel</Button>
@@ -187,7 +174,7 @@ export function Sidebar({
                       </Dialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </Link>
+                </div>
               ))}
             </div>
           )}

@@ -1,10 +1,9 @@
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { enqueueSnackbar } from 'notistack'
-import { RegisteredUsers } from '@prisma/client';
-import Loader from '../components/LoaderIcon';
-import { apiService } from '../services/ApiService';
-
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { enqueueSnackbar } from "notistack";
+import { RegisteredUsers } from "@prisma/client";
+import Loader from "../components/LoaderIcon";
+import { apiService } from "../services/ApiService";
 
 export function withAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
   const WithAuth = (props: T) => {
@@ -15,22 +14,22 @@ export function withAuth<T extends object>(WrappedComponent: React.ComponentType
     useEffect(() => {
       const fetchUser = async () => {
         try {
-          if(!localStorage.getItem('token')){
-            enqueueSnackbar('User is not authenticated', { variant: 'error' });
-            router.replace('/');
+          if (!localStorage.getItem("token")) {
+            enqueueSnackbar("User is not authenticated", { variant: "error" });
+            router.replace("/");
             return;
           }
-          const response = await apiService.checkAdmin(localStorage.getItem('token')!)
+          const response = await apiService.checkAdmin(localStorage.getItem("token")!);
 
-          if (!response.data.isAdmin) {
-            enqueueSnackbar('User is not authenticated', { variant: 'error' });
-            router.replace('/');
+          if (!response.isAdmin) {
+            enqueueSnackbar("User is not authenticated", { variant: "error" });
+            router.replace("/");
           }
 
-          setUser(response.data.isAdmin);
+          setUser(response.isAdmin);
         } catch (error) {
           console.error(error);
-          router.replace('/');
+          router.replace("/");
         } finally {
           setLoading(false);
         }
@@ -40,7 +39,7 @@ export function withAuth<T extends object>(WrappedComponent: React.ComponentType
     }, [router]);
 
     if (loading) {
-      return <Loader/>
+      return <Loader />;
     }
 
     if (!user) {
