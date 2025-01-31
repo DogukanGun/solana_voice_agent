@@ -6,6 +6,7 @@ import ContextProvider from "./context";
 import "@reown/appkit-wallet-button/react";
 import { ModalProvider } from "./providers/ModalWrapper";
 import InnerLayout from "./components/InnerLayout";
+import PrivyProviders from "./components/PrivyProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function RootLayout({
         <ContextProvider>
           <WalletProvider>
             <ModalProvider>
-              <InnerLayout>{children}</InnerLayout>
+              <PrivyProviders>
+                <InnerLayout>{children}</InnerLayout>
+              </PrivyProviders>
             </ModalProvider>
           </WalletProvider>
         </ContextProvider>

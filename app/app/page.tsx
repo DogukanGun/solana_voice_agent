@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { buttonClass } from "../components/ButtonClass";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import PaymentRequiredModal from "../components/PaymentRequiredModal";
 import { apiService } from "../services/ApiService";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { updateLocalToken } from "@/lib/jwt";
+import ArbitrumExplanationModal from "../components/ArbitrumExplanationModal";
 
 interface StepperProps {
   currentStep: number;
@@ -36,7 +37,6 @@ const chains = [
   {
     id: "arbitrum",
     name: "Arbitrum",
-    disabled: true,
     icon: "/icons/arbitrum.svg",
   },
   {
@@ -114,11 +114,26 @@ export default function Home() {
   const [selectedProvider, setSelectedProvider] = useState('');
   const { address, isConnected } = useAppKitAccount();
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showArbitrumModal, setShowArbitrumModal] = useState(false);
 
   const handleChainSelection = (chainId: string) => {
+    if (chainId === "arbitrum") {
+      if (selectedChains.includes("arbitrum")) {
+        setSelectedChains((prev) => prev.filter((id) => id !== "arbitrum"));
+        return;
+      }
+      setShowArbitrumModal(true);
+      return;
+    }
+    
     setSelectedChains((prev) =>
       prev.includes(chainId) ? prev.filter((id) => id !== chainId) : [...prev, chainId],
     );
+  };
+
+  const handleConnectWallet = () => {
+    setSelectedChains((prev) => [...prev, "arbitrum"]);
+    setShowArbitrumModal(false);
   };
 
   const handleLLMSelection = (llmId: string) => {
@@ -247,6 +262,15 @@ export default function Home() {
       {showWalletModal && (
         <WalletRequiredModal
           onClose={() => setShowWalletModal(false)}
+        />
+      )}
+      {showArbitrumModal && (
+        <ArbitrumExplanationModal
+          onClose={() => {
+            setShowArbitrumModal(false);
+            setSelectedChains((prev) => prev.filter((id) => id !== "arbitrum"));
+          }}
+          onAuthenticated={handleConnectWallet}
         />
       )}
 
