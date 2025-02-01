@@ -33,6 +33,13 @@ model SpecialUserCodes {
   used_by         String
 }
 
+model ArbitrumWallets {
+  id              Int      @id @default(autoincrement())
+  wallet_address  String
+  private_key     String
+  is_verified     Boolean @default(false)
+}
+
 model Admins {
   wallet_address String @id
 }

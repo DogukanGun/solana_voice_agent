@@ -7,21 +7,21 @@ interface ArbitrumExplanationModalProps {
   onAuthenticated: () => void;
 }
 
-const ArbitrumExplanationModal: React.FC<ArbitrumExplanationModalProps> = ({ onClose,onAuthenticated }) => {
+const ArbitrumExplanationModal: React.FC<ArbitrumExplanationModalProps> = ({ onClose, onAuthenticated }) => {
   const { ready, authenticated, login } = usePrivy();
   const [loginClicked, setLoginClicked] = useState(false);
 
   const handleLogin = () => {
     if (ready) {
-        setLoginClicked(true);
-        login(); // Trigger the login process without await
+      setLoginClicked(true);
+      login(); // Trigger the login process without await
     }
   };
 
   useEffect(() => {
     if (authenticated && loginClicked) {
-        enqueueSnackbar("Wallet connected", { variant: "success" });
-        onAuthenticated();
+      enqueueSnackbar("Wallet connected", { variant: "success" });
+      onAuthenticated();
     }
   }, [authenticated, loginClicked]);
 

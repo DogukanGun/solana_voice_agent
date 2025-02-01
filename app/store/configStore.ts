@@ -1,13 +1,14 @@
+import { AppChain } from '../app/page'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface ConfigState {
-  chains: string[]
+  chains: AppChain[]
   llmProvider: string
   agentType: string
   isConfigured: boolean
   isPremiumVerified: boolean
-  setConfig: (config: { chains: string[]; llmProvider: string; agentType: string }) => void
+  setConfig: (config: { chains: AppChain[]; llmProvider: string; agentType: string }) => void
   clearConfig: () => void
   setPremiumVerified: (verified: boolean) => void
 }

@@ -14,6 +14,7 @@ import RequireConfig from "../components/RequireConfig";
 import { apiService } from "@/app/services/ApiService";
 import WalletButton from "../components/WalletButton";
 import { useRouter } from "next/navigation";
+import { useConfigStore } from "../store/configStore";
 
 export default function ChatUI() {
   const { messages, input, handleInputChange, isLoading, error, stop, setMessages, setInput } =
@@ -72,7 +73,10 @@ export default function ChatUI() {
 
   // Check wallet connection on mount and when connection status changes
   useEffect(() => {
-    if (!isConnected) {
+    // Check if the user has configured a chain with an embedded wallet
+    const hasUserWallet = useConfigStore.getState().chains.some(chain => !chain.isEmbedded);
+
+    if (!isConnected && hasUserWallet) {
       setShowWalletModal(true);
     } else {
       setShowWalletModal(false);

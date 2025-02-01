@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { buttonClass } from "../components/ButtonClass";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -10,51 +10,86 @@ import { apiService } from "../services/ApiService";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { updateLocalToken } from "@/lib/jwt";
 import ArbitrumExplanationModal from "../components/ArbitrumExplanationModal";
+import { usePrivy } from "@privy-io/react-auth";
+import Cookies from 'js-cookie';
+import { enqueueSnackbar } from "notistack";
+import { useLoading } from '../context/LoadingContext';
 
 interface StepperProps {
   currentStep: number;
   totalSteps: number;
 }
 
-const chains = [
+export interface AppChain {
+  id: string;
+  name: string;
+  isEmbedded: boolean;
+  disabled: boolean | undefined;
+  icon: string;
+}
+
+export interface KnowledgeBase {
+  id: string;
+  name: string;
+  disabled: boolean | undefined;
+}
+
+const knowledgeBases: KnowledgeBase[] = [
+  {
+    id: "cookieDao",
+    name: "Cookie Dao",
+    disabled: false,
+  },
+];
+
+const chains: AppChain[] = [
   {
     id: "solana",
     name: "Solana",
+    isEmbedded: false,
+    disabled: false,
     icon: "/icons/solana.svg",
+  },
+  {
+    id: "arbitrum",
+    name: "Arbitrum",
+    isEmbedded: true,
+    disabled: false,
+    icon: "/icons/arbitrum.svg",
   },
   {
     id: "eigenlayer",
     name: "Eigenlayer",
     disabled: true,
+    isEmbedded: false,
     icon: "/icons/eigenlayer.svg",
   },
   {
     id: "ethereum",
     name: "Ethereum",
     disabled: true,
+    isEmbedded: true,
     icon: "/icons/ethereum.svg",
-  },
-  {
-    id: "arbitrum",
-    name: "Arbitrum",
-    icon: "/icons/arbitrum.svg",
   },
   {
     id: "base",
     name: "Base",
     disabled: true,
+    isEmbedded: true,
     icon: "/icons/base.svg",
   },
   {
     id: "polygon",
     name: "Polygon",
     disabled: true,
+    isEmbedded: false,
     icon: "/icons/polygon.svg",
   },
   {
     id: "avalanche",
     name: "Avalanche",
     disabled: true,
+    isEmbedded: false,
     icon: "/icons/avalanche.svg",
   },
 ];
@@ -107,7 +142,8 @@ const primaryButtonClass =
 export default function Home() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedChains, setSelectedChains] = useState<string[]>([]);
+  const [selectedChains, setSelectedChains] = useState<typeof chains[number][]>([]);
+  const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<typeof knowledgeBases[number][]>([]);
   const [selectedLLM, setSelectedLLM] = useState<string>("");
   const [selectedAgentType, setSelectedAgentType] = useState<string>("");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -115,25 +151,26 @@ export default function Home() {
   const { address, isConnected } = useAppKitAccount();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showArbitrumModal, setShowArbitrumModal] = useState(false);
+  const { getAccessToken, user } = usePrivy();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   const handleChainSelection = (chainId: string) => {
+    const selectedChain = chains.find(chain => chain.id === chainId);
+
     if (chainId === "arbitrum") {
-      if (selectedChains.includes("arbitrum")) {
-        setSelectedChains((prev) => prev.filter((id) => id !== "arbitrum"));
+      if (selectedChains.some(chain => chain.id === selectedChain!.id)) {
+        setSelectedChains((prev) => prev.filter((chain) => chain.id !== chainId));
         return;
       }
       setShowArbitrumModal(true);
       return;
     }
-    
-    setSelectedChains((prev) =>
-      prev.includes(chainId) ? prev.filter((id) => id !== chainId) : [...prev, chainId],
-    );
-  };
 
-  const handleConnectWallet = () => {
-    setSelectedChains((prev) => [...prev, "arbitrum"]);
-    setShowArbitrumModal(false);
+    setSelectedChains((prev) =>
+      prev.some(chain => chain.id === selectedChain!.id) ? prev.filter((chain) => chain.id !== chainId) : [...prev, selectedChain!],
+    );
   };
 
   const handleLLMSelection = (llmId: string) => {
@@ -141,7 +178,7 @@ export default function Home() {
     if (selectedProvider?.disabled) {
       return; // Prevent selection if the provider is disabled
     }
-    
+
     if (llmId === 'claude' || llmId === 'openai') {
       setSelectedProvider(llmId === 'claude' ? 'Claude' : 'OpenAI');
       setShowPaymentModal(true);
@@ -154,12 +191,12 @@ export default function Home() {
     if (selectedType?.disabled) {
       return; // Prevent selection if the agent type is disabled
     }
-    
+
     setSelectedAgentType((prev) => (prev === typeId ? "" : typeId));
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -171,11 +208,7 @@ export default function Home() {
   };
 
   const handleStart = async () => {
-    if (!isConnected) {
-      setShowWalletModal(true);
-      return;
-    }
-
+    // Save selections into the store
     const config = {
       chains: selectedChains,
       llmProvider: selectedLLM,
@@ -184,8 +217,18 @@ export default function Home() {
 
     useConfigStore.getState().setConfig(config);
 
-    const res = await apiService.updateToken(address!);
-    updateLocalToken(res.token);
+    const hasUserWallet = useConfigStore.getState().chains.some(chain => !chain.isEmbedded);
+    const hasEmbeddedWallet = useConfigStore.getState().chains.some(chain => chain.isEmbedded);
+
+    if (!isConnected && hasUserWallet) {
+      setShowWalletModal(true);
+      return;
+    }
+
+    if (hasUserWallet) {
+      const res = await apiService.updateToken(address!);
+      updateLocalToken(res.token);
+    }
 
     if (selectedAgentType === "voice") {
       router.push("/voice");
@@ -209,9 +252,9 @@ export default function Home() {
       case 1:
         return selectedChains.length > 0;
       case 2:
-        return selectedLLM !== "";
+        return true; // Allow proceeding without selection for Knowledge Bases
       case 3:
-        return selectedAgentType !== "";
+        return selectedLLM !== ""; // Ensure this checks if a provider is selected
       default:
         return false;
     }
@@ -222,9 +265,9 @@ export default function Home() {
       case 1:
         return "Please select at least one chain";
       case 2:
-        return "Please select an LLM provider";
+        return "";
       case 3:
-        return "Please select an agent type";
+        return "Please select an LLM provider";
       default:
         return "";
     }
@@ -251,6 +294,61 @@ export default function Home() {
     );
   };
 
+  const onAuthenticated = async () => {
+    try {
+      const accessToken = await getAccessToken();
+      const response = await fetch('/api/user/wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && accessToken) {
+        Cookies.set('accessToken', accessToken, { expires: 7 });
+        console.log('Access token saved in cookie:', accessToken);
+        enqueueSnackbar('Privy token is valid, welcome to NexAI!', { variant: 'success' });
+        setSelectedChains((prev) => [...prev, chains.find(chain => chain.id === "arbitrum")!]);
+        setShowArbitrumModal(false);
+      } else {
+        console.error('Error in API response:', data);
+      }
+    } catch (error) {
+      console.error('Error signing message:', error);
+    }
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleWalletTypeSelection = (isEmbedded: boolean) => {
+    const filterType = isEmbedded ? "embedded" : "browser";
+    if (activeFilter === filterType) {
+      setActiveFilter(null);
+      setSelectedChains([]);
+    } else {
+      setActiveFilter(filterType);
+    }
+    setIsDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-0">
       {showPaymentModal && (
@@ -267,65 +365,134 @@ export default function Home() {
       {showArbitrumModal && (
         <ArbitrumExplanationModal
           onClose={() => {
+            setSelectedChains((prev) => {
+              if (prev.map(chain => chain.id).includes("arbitrum")) {
+                return prev.filter((chain) => chain.id !== "arbitrum");
+              }
+              return prev;
+            });
             setShowArbitrumModal(false);
-            setSelectedChains((prev) => prev.filter((id) => id !== "arbitrum"));
           }}
-          onAuthenticated={handleConnectWallet}
+          onAuthenticated={onAuthenticated}
         />
       )}
 
       <div className="w-full h-screen bg-black rounded-none p-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text mb-2">
+        <div className="text-center mb-12 flex justify-between items-center">
+          <h1 className="text-4xl w-full font-bold text-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text mb-2">
             NexAI Wallet
           </h1>
-          <p className="text-gray-400">Your Gateway to AI-Powered Web3 Experience</p>
         </div>
 
-        <StepperHeader currentStep={currentStep} totalSteps={3} />
+        <StepperHeader currentStep={currentStep} totalSteps={4} />
 
         <div className="space-y-8">
           {currentStep === 1 && (
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">Select Chains</h2>
+              <div className="relative">
+                <button
+                  onClick={toggleDropdown}
+                  className={`${buttonClass} mb-4 flex items-center bg-gray-200 text-black`}
+                >
+                  Filter Chain {activeFilter ? `(${activeFilter === 'embedded' ? 'Embedded' : 'Browser'})` : ''}
+                  <span className="ml-2">{isDropdownOpen ? '▼' : '▲'}</span>
+                </button>
+                {isDropdownOpen && (
+                  <div ref={dropdownRef} className="absolute bg-white shadow-lg rounded-md mt-2 z-10">
+                    <div
+                      onClick={() => handleWalletTypeSelection(true)}
+                      className={`w-full text-left px-4 py-2 text-black hover:bg-gray-200 cursor-pointer`}
+                    >
+                      Embedded Wallet
+                    </div>
+                    <div
+                      onClick={() => handleWalletTypeSelection(false)}
+                      className={`w-full text-left px-4 py-2 text-black hover:bg-gray-200 cursor-pointer`}
+                    >
+                      Browser Wallet
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 1 && (
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-white">Select Chains</h2>
               <div className={cardContainerClass}>
-                {chains.map((chain) => (
+                {chains
+                  .filter(chain => {
+                    if (activeFilter === "embedded") return chain.isEmbedded;
+                    if (activeFilter === "browser") return !chain.isEmbedded;
+                    return true; // Show all if no filter is active
+                  })
+                  .map((chain) => (
+                    <button
+                      key={chain.id}
+                      onClick={() => !chain.disabled && handleChainSelection(chain.id)}
+                      className={`
+                        ${chain.disabled
+                          ? "opacity-50 cursor-not-allowed"
+                          : selectedChains.some(selectedChain => selectedChain.id === chain.id)
+                            ? selectedButtonClass
+                            : buttonClass
+                        }
+                        ${cardClass}
+                      `}
+                      disabled={chain.disabled}
+                    >
+                      <div className={buttonContentClass}>
+                        <Image
+                          src={chain.icon}
+                          alt={`${chain.name} icon`}
+                          width={20}
+                          height={20}
+                          className={iconClass}
+                        />
+                        <span className={buttonTextClass}>{chain.name}</span>
+                      </div>
+                      {chain.disabled && (
+                        <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
+                          Coming Soon
+                        </span>
+                      )}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4 text-white">Knowledge Bases</h2>
+              <div className={cardContainerClass}>
+                {knowledgeBases.map((kb) => (
                   <button
-                    key={chain.id}
-                    onClick={() => !chain.disabled && handleChainSelection(chain.id)}
+                    key={kb.id}
+                    onClick={() => {
+                      const knowledgeBase = knowledgeBases.find(k => k.id === kb.id);
+                      setSelectedKnowledgeBases((prev) => 
+                        prev.some(kb => kb.id === knowledgeBase!.id) 
+                          ? prev.filter(kb => kb.id !== knowledgeBase!.id) 
+                          : knowledgeBase ? [...prev, knowledgeBase] : prev // Add the object if found
+                      );
+                    }}
                     className={`
-                      ${chain.disabled
-                        ? "opacity-50 cursor-not-allowed"
-                        : selectedChains.includes(chain.id)
-                          ? selectedButtonClass
-                          : buttonClass
-                      }
+                      ${selectedKnowledgeBases.some(kb => kb.id === kb.id) ? selectedButtonClass : buttonClass}
                       ${cardClass}
                     `}
-                    disabled={chain.disabled}
                   >
-                    <div className={buttonContentClass}>
-                      <Image
-                        src={chain.icon}
-                        alt={`${chain.name} icon`}
-                        width={20}
-                        height={20}
-                        className={iconClass}
-                      />
-                      <span className={buttonTextClass}>{chain.name}</span>
-                    </div>
-                    {chain.disabled && (
-                      <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
-                        Coming Soon
-                      </span>
-                    )}
+                    <span className={buttonTextClass}>
+                      {kb.name}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {currentStep === 2 && (
+          {currentStep === 3 && (
             <div>
               <h2 className="text-2xl font-bold mb-4 text-white">Select LLM Provider</h2>
               <div className={cardContainerClass}>
@@ -358,7 +525,7 @@ export default function Home() {
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <div>
               <h2 className="text-2xl font-bold mb-4 text-white">Select Agent Type</h2>
               <div className={cardContainerClass}>
@@ -398,7 +565,7 @@ export default function Home() {
             >
               Back
             </button>
-            {currentStep === 3 ? (
+            {currentStep === 4 ? (
               <div className="relative group">
                 <button
                   onClick={handleStart}
@@ -421,8 +588,7 @@ export default function Home() {
               <div className="relative group">
                 <button
                   onClick={handleNext}
-                  className={`${buttonClass} ${!isStepValid(currentStep) ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`${buttonClass} ${!isStepValid(currentStep) ? "opacity-50 cursor-not-allowed" : ""}`}
                   disabled={!isStepValid(currentStep)}
                 >
                   Next
