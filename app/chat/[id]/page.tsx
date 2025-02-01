@@ -4,6 +4,9 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useChat, Message } from "ai/react";
 import { ChatLayout } from "../components/chat/chat-layout";
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from "sonner";
+import { apiService } from "@/app/services/ApiService";
 
 export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -21,7 +24,15 @@ export default function ChatPage() {
                 if (storedMessages) {
                     setMessages(JSON.parse(storedMessages));
                     setChatId(chatIdFromPath);
+                } else {
+                    // Generate a new chat ID if no messages found
+                    const id = uuidv4(); // Generate a new chat ID
+                    setChatId(id);
                 }
+            } else {
+                // Generate a new chat ID if no chatId is present
+                const id = uuidv4(); // Generate a new chat ID
+                setChatId(id);
             }
         };
 
@@ -39,7 +50,12 @@ export default function ChatPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Handle message submission logic here
+        
+        // Add the user message to the messages array
+        const userMessage: Message = { role: "user", content: input, id: chatId };
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+        setInput(""); // Clear the input field
+
     };
 
     return (

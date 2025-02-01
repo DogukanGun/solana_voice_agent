@@ -35,6 +35,7 @@ export default function ChatUI() {
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>("solana");
   const router = useRouter();
+  const stores = useConfigStore();
 
   // Add state for modal
   const [showWalletModal, setShowWalletModal] = React.useState(false);
@@ -52,7 +53,7 @@ export default function ChatUI() {
         }
       } else {
         // Generate a new chat ID if we're not returning to an existing chat
-        const id = uuidv4();
+        const id = uuidv4(); // Generate a new chat ID
         setChatId(id);
       }
     };
@@ -97,11 +98,11 @@ export default function ChatUI() {
     setInput("");
 
     try {
-      const { text } = await apiService.postChat(input, messages);
+      const { text } = await apiService.postChat(input, messages, stores.chains);
       console.log("Text", text);
       
       if (text.includes("sol_ai")) {
-        const res = await apiService.postBot(text, address!);
+        const res = await apiService.postBot(text, address!, stores.chains);
         console.log("Bot response", res.text);
         
         if (res.text) {

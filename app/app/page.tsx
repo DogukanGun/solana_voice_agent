@@ -218,17 +218,14 @@ export default function Home() {
     useConfigStore.getState().setConfig(config);
 
     const hasUserWallet = useConfigStore.getState().chains.some(chain => !chain.isEmbedded);
-    const hasEmbeddedWallet = useConfigStore.getState().chains.some(chain => chain.isEmbedded);
 
     if (!isConnected && hasUserWallet) {
       setShowWalletModal(true);
       return;
     }
 
-    if (hasUserWallet) {
-      const res = await apiService.updateToken(address!);
-      updateLocalToken(res.token);
-    }
+    const res = await apiService.updateToken(hasUserWallet ? address! : user ? user.id : "");
+    updateLocalToken(res.token);
 
     if (selectedAgentType === "voice") {
       router.push("/voice");
@@ -472,9 +469,9 @@ export default function Home() {
                     key={kb.id}
                     onClick={() => {
                       const knowledgeBase = knowledgeBases.find(k => k.id === kb.id);
-                      setSelectedKnowledgeBases((prev) => 
-                        prev.some(kb => kb.id === knowledgeBase!.id) 
-                          ? prev.filter(kb => kb.id !== knowledgeBase!.id) 
+                      setSelectedKnowledgeBases((prev) =>
+                        prev.some(kb => kb.id === knowledgeBase!.id)
+                          ? prev.filter(kb => kb.id !== knowledgeBase!.id)
                           : knowledgeBase ? [...prev, knowledgeBase] : prev // Add the object if found
                       );
                     }}

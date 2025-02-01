@@ -18,7 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         case 'POST':
             // Handle POST request
-            const { caption, messageHistory } = req.body;
+            const { caption, messageHistory, chains } = req.body;
             if (!caption || typeof caption !== "string") {
                 return res.status(400).json({ error: "Caption is required and should be a string." });
             }
@@ -28,13 +28,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     apiKey:process.env.OPEN_AI_KEY
                 }
             );
+            const multichainMessage = {
+                role: "system",
+                content: `If the message is about executing a transaction in blockchain,
+                and if which chain the transaction is to be executed is not mentioned, then you must ask which one of the following chains ${chains.join(", ")} the transaction is to be executed on.
+                If it is mentioned, then you must change \"{text:\${user_message}, op:tx}\" to \"{text:\${user_message}, op:tx, chain:\${chain}_ai}\"`
+            }
+            const systemMessage = [{
+                role: "system",
+                content: "So user will send you a text."+ 
+                "Now you have to decide that message is about executing a transaction in "+
+                "blockchain or not.If it is, then only return this  (${user_message} represents user's message) "+
+                "\"{text:${user_message}, op:tx}\" . Otherwise, answer question normally.",
+            }]
+            if(chains.length > 1){
+                systemMessage.push(multichainMessage)
+            }
             const completions = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [
-                    {
-                        role: "system",
-                        content: "So user will send you a text. Now you have to decide that message is about executing a transaction in blockchain or not.If it is, then only return this  (${user_message} represents user's message) \"{text:${user_message}, op:sol_ai}\" . Otherwise, answer question normally.",
-                    },
+                    ...systemMessage,
                     ...messageHistory,
                     {
                         role: "user",
@@ -52,10 +65,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
             try {
-                if(message.content.includes("sol_ai")){
+                if(message.content.includes("tx")){
+                    console.log(message.content.split("chain:")[1].split("_ai"))
                     return res.status(200).json({
                         text: message.content|| "",
-                        op:"sol_op"
+                        op:message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : null
                     });
                 }
             }catch(e){
