@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { buttonClass } from "./ButtonClass";
 import { useAppKitAccount } from "../config";
 import WalletButton from "./WalletButton";
 
 const Navbar = () => {
   const path = usePathname();
-  const {  isConnected } = useAppKitAccount();
+  const { isConnected } = useAppKitAccount();
+  const router = useRouter();
 
   return (
     <div className="drawer">
@@ -38,17 +39,24 @@ const Navbar = () => {
           </div>
           <div className="mx-2 flex-1 px-2 text-2xl font-bold">Nexarb</div>
           <div className="hidden flex-none lg:block">
-            <ul className="menu menu-horizontal px-4 py-2">
+            <ul className="menu menu-horizontal flex items-center px-4 py-2">
               {path === "/" && (
-                <li>
+                <li className="mr-4 flex items-center">
                   <Link href="/app" className={buttonClass}>
                     Launch App
                   </Link>
                 </li>
               )}
               {path !== "/" && (
-                <li>
+                <li className="mr-4 flex items-center">
                   <WalletButton />
+                </li>
+              )}
+              {path !== '/' && path !== '/app' && (
+                <li className="mr-4 flex items-center">
+                  <button onClick={() => router.push('/app')} className={buttonClass}>
+                    Go Back to Configuration
+                  </button>
                 </li>
               )}
             </ul>

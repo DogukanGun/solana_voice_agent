@@ -9,6 +9,7 @@ import InnerLayout from "./components/InnerLayout";
 import PrivyProviders from "./components/PrivyProvider";
 import React from 'react';
 import { LoadingProvider } from './context/LoadingContext';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
