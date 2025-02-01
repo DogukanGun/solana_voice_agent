@@ -178,11 +178,19 @@ class ApiService {
     });
   }
 
-  async postBot(text: string, address: string, chains: AppChain[]): Promise<BotResponse> {
-    return this.fetchWithToken("/api/bot", {
+  async postBotSolana(text: string, address: string): Promise<BotResponse> {
+    return this.fetchWithToken("/api/bot/solana", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text.split("op")[0], address, chains }),
+      body: JSON.stringify({ text: text.split("op")[0], address }),
+    });
+  }
+
+  async postBotArbitrum(text: string, id: string): Promise<BotResponse> {
+    return this.fetchWithToken("/api/bot/arbitrum", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.split("op")[0], walletData:id }),
     });
   }
 

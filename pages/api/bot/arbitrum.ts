@@ -10,7 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const wallet = await prisma.arbitrumWallets.findFirst({
         where: {
-            wallet_address: walletData.walletAddress
+            wallet_address: walletData
         },
         select: {
             private_key: true

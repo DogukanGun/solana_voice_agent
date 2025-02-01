@@ -15,6 +15,7 @@ import { apiService } from "@/app/services/ApiService";
 import WalletButton from "../components/WalletButton";
 import { useRouter } from "next/navigation";
 import { useConfigStore } from "../store/configStore";
+import { usePrivy } from "@privy-io/react-auth";
 
 export default function ChatUI() {
   const { messages, input, handleInputChange, isLoading, error, stop, setMessages, setInput } =
@@ -32,6 +33,7 @@ export default function ChatUI() {
   const [chatId, setChatId] = React.useState<string>("");
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const { user } = usePrivy();
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Provider>("solana");
   const router = useRouter();
@@ -90,6 +92,46 @@ export default function ChatUI() {
     setMessages([...messages]);
   };
 
+  const handleSolAi = async (text: string) => {
+    const res = await apiService.postBotSolana(text, address!);
+    console.log("Bot response", res.text);
+
+    if (res.text) {
+      addMessage({ role: "assistant", content: res.text, id: chatId });
+      setMessages([...messages]);
+      setLoadingSubmit(false);
+    } else {
+      const serializedTransaction = Buffer.from(res.transaction!, "base64");
+      const tx = VersionedTransaction.deserialize(serializedTransaction);
+      try {
+        await walletProvider.signAndSendTransaction(tx);
+      } catch (e) {
+        console.log(e);
+        addMessage({
+          role: "assistant",
+          content: "Transaction failed, please try again",
+          id: chatId,
+        });
+        setMessages([...messages]);
+        setLoadingSubmit(false);
+      }
+    }
+  }
+
+  const handleArbitrumAi = async (text: string) => {
+    const res = await apiService.postBotArbitrum(text, user?.id ?? "");
+    console.log("Bot response", res.text);
+    if (res.text) {
+      addMessage({ role: "assistant", content: res.text, id: chatId });
+      setMessages([...messages]);
+      setLoadingSubmit(false);
+    }else{
+      addMessage({ role: "assistant", content: "Transaction failed, please try again", id: chatId });
+      setMessages([...messages]);
+      setLoadingSubmit(false);
+    }
+  }
+
   // Function to handle chatting with Ollama in production (client side)
   const handleSubmitProduction = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -100,31 +142,11 @@ export default function ChatUI() {
     try {
       const { text } = await apiService.postChat(input, messages, stores.chains);
       console.log("Text", text);
-      
+
       if (text.includes("sol_ai")) {
-        const res = await apiService.postBot(text, address!, stores.chains);
-        console.log("Bot response", res.text);
-        
-        if (res.text) {
-          addMessage({ role: "assistant", content: res.text, id: chatId });
-          setMessages([...messages]);
-          setLoadingSubmit(false);
-        } else {
-          const serializedTransaction = Buffer.from(res.transaction!, "base64");
-          const tx = VersionedTransaction.deserialize(serializedTransaction);
-          try {
-            await walletProvider.signAndSendTransaction(tx);
-          } catch (e) {
-            console.log(e);
-            addMessage({
-              role: "assistant",
-              content: "Transaction failed, please try again",
-              id: chatId,
-            });
-            setMessages([...messages]);
-            setLoadingSubmit(false);
-          }
-        }
+        handleSolAi(text);
+      } else if (text.includes("arbitrum_ai")) {
+        handleArbitrumAi(text);
       } else {
         console.log(text.includes("sol_ai"));
         addMessage({ role: "assistant", content: text, id: chatId });
