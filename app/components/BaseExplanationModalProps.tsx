@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { enqueueSnackbar } from "notistack";
 
-interface ArbitrumExplanationModalProps {
+interface BaseExplanationModalProps {
   onClose: () => void;
   onAuthenticated: () => void;
 }
 
-const ArbitrumExplanationModal: React.FC<ArbitrumExplanationModalProps> = ({ onClose, onAuthenticated }) => {
+const BaseExplanationModal: React.FC<BaseExplanationModalProps> = ({ onClose, onAuthenticated }) => {
   const { ready, authenticated, login } = usePrivy();
   const [loginClicked, setLoginClicked] = useState(false);
 
@@ -28,9 +28,9 @@ const ArbitrumExplanationModal: React.FC<ArbitrumExplanationModalProps> = ({ onC
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full mx-4">
-        <h3 className="text-xl font-bold text-white mb-4">Arbitrum Process</h3>
+        <h3 className="text-xl font-bold text-white mb-4">Base Process</h3>
         <p className="text-gray-300 mb-6">
-          To use Arbitrum, please follow these steps:
+          To use Base, please follow these steps:
         </p>
         <ol className="list-decimal list-inside text-gray-300 mb-6">
           <li>Login with Provy wallet</li>
@@ -56,4 +56,4 @@ const ArbitrumExplanationModal: React.FC<ArbitrumExplanationModalProps> = ({ onC
   );
 };
 
-export default ArbitrumExplanationModal; 
+export default BaseExplanationModal; 

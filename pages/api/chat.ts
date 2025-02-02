@@ -32,7 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 role: "system",
                 content: `If the message is about executing a transaction in blockchain,
                 and if which chain the transaction is to be executed is not mentioned, then you must ask which one of the following chains ${chains.join(", ")} the transaction is to be executed on.
-                If it is mentioned, then you must change \"{text:\${user_message}, op:tx}\" to \"{text:\${user_message}, op:tx, chain:\${chain}_ai}\"`
+                If it is mentioned, then you must change \"{text:\${user_message}, op:tx}\" to \"{text:\${user_message}, op:tx, chain:\${chain}}\"`
             }
             const systemMessage = [{
                 role: "system",
@@ -56,7 +56,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 ],
             })
             const message = completions.choices[0].message;
-            console.log(message)
             if (!message) {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
@@ -65,15 +64,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 return res.status(500).json({ error: "Failed to generate a response." });
             }
             try {
+                console.log("Message content ",message.content)
                 if(message.content.includes("tx")){
-                    console.log(message.content.split("chain:")[1].split("_ai"))
+                    console.log(message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : chains[0].id)
                     return res.status(200).json({
                         text: message.content|| "",
-                        op:message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : null
+                        audio: "",
+                        op:message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : chains[0].id
                     });
                 }
             }catch(e){
-                console.log("Not a sol_op")
+                console.log("Not a transaction")
             }
 
             // Convert the message to speech
@@ -90,6 +91,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             res.status(200).json({
                 text: message.content || "",
                 audio: base64Audio,
+                op: ""
             });
             break;
 

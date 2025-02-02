@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { createAgent } from "./agentHelpers";
 import { prisma } from '@/app/helper/PrismaHelper';
 import { HumanMessage } from "@langchain/core/messages";
+import { Coinbase } from "@coinbase/coinbase-sdk/dist/coinbase/coinbase";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { walletData, text } = req.body;
@@ -13,7 +14,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             wallet_address: walletData
         },
         select: {
-            private_key: true
+            private_key: true,
+            mnemonic: true
         }
     });
 
@@ -21,12 +23,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(400).json({ error: 'Wallet not found' });
     }
 
-    const config = {
-        cdpWalletData: wallet.private_key || undefined,
-        networkId: process.env.NETWORK_ID || "arbitrum-sepolia",
-    };
-
     // Initialize CDP AgentKit
+    const config = {
+        apiKeyName: process.env.CDP_API_KEY_NAME,
+        apiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+        mnemonicPhrase: wallet.mnemonic ?? undefined,
+        networkId: Coinbase.networks.ArbitrumMainnet,
+    };
     const agentkit = await CdpAgentkit.configureWithWallet(config);
     const cdpToolkit = new CdpToolkit(agentkit);
     const tools = cdpToolkit.getTools();

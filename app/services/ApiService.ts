@@ -34,6 +34,7 @@ type AdminResponse = {
 type ChatResponse = {
   text: string;
   audio?: string;
+  op?: string;
 };
 
 type BotResponse = {
@@ -186,8 +187,8 @@ class ApiService {
     });
   }
 
-  async postBotArbitrum(text: string, id: string): Promise<BotResponse> {
-    return this.fetchWithToken("/api/bot/arbitrum", {
+  async postBotBase(text: string, id: string): Promise<BotResponse> {
+    return this.fetchWithToken("/api/bot/base", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: text.split("op")[0], walletData:id }),

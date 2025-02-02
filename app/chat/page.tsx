@@ -118,8 +118,8 @@ export default function ChatUI() {
     }
   }
 
-  const handleArbitrumAi = async (text: string) => {
-    const res = await apiService.postBotArbitrum(text, user?.id ?? "");
+  const handleBaseAi = async (text: string) => {
+    const res = await apiService.postBotBase(text, user?.id ?? "");
     console.log("Bot response", res.text);
     if (res.text) {
       addMessage({ role: "assistant", content: res.text, id: chatId });
@@ -140,13 +140,13 @@ export default function ChatUI() {
     setInput("");
 
     try {
-      const { text } = await apiService.postChat(input, messages, stores.chains);
-      console.log("Text", text);
-
-      if (text.includes("sol_ai")) {
+      const { text, op } = await apiService.postChat(input, messages, stores.chains);
+      console.log("Text=", text);
+      console.log("Op=", op);
+      if (op === "solana") {
         handleSolAi(text);
-      } else if (text.includes("arbitrum_ai")) {
-        handleArbitrumAi(text);
+      } else if (op ==="base") {
+        handleBaseAi(text);
       } else {
         console.log(text.includes("sol_ai"));
         addMessage({ role: "assistant", content: text, id: chatId });

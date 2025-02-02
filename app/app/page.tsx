@@ -9,7 +9,7 @@ import PaymentRequiredModal from "../components/PaymentRequiredModal";
 import { apiService } from "../services/ApiService";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { updateLocalToken } from "@/lib/jwt";
-import ArbitrumExplanationModal from "../components/ArbitrumExplanationModal";
+import BaseExplanationModal from "../components/BaseExplanationModalProps";
 import { usePrivy } from "@privy-io/react-auth";
 import Cookies from 'js-cookie';
 import { enqueueSnackbar } from "notistack";
@@ -51,10 +51,17 @@ const chains: AppChain[] = [
     icon: "/icons/solana.svg",
   },
   {
+    id: "base",
+    name: "Base",
+    disabled: false,
+    isEmbedded: true,
+    icon: "/icons/base.svg",
+  },
+  {
     id: "arbitrum",
     name: "Arbitrum",
     isEmbedded: true,
-    disabled: false,
+    disabled: true,
     icon: "/icons/arbitrum.svg",
   },
   {
@@ -70,13 +77,6 @@ const chains: AppChain[] = [
     disabled: true,
     isEmbedded: true,
     icon: "/icons/ethereum.svg",
-  },
-  {
-    id: "base",
-    name: "Base",
-    disabled: true,
-    isEmbedded: true,
-    icon: "/icons/base.svg",
   },
   {
     id: "polygon",
@@ -159,7 +159,7 @@ export default function Home() {
   const handleChainSelection = (chainId: string) => {
     const selectedChain = chains.find(chain => chain.id === chainId);
 
-    if (chainId === "arbitrum") {
+    if (chainId === "base") {
       if (selectedChains.some(chain => chain.id === selectedChain!.id)) {
         setSelectedChains((prev) => prev.filter((chain) => chain.id !== chainId));
         return;
@@ -308,7 +308,7 @@ export default function Home() {
         Cookies.set('accessToken', accessToken, { expires: 7 });
         console.log('Access token saved in cookie:', accessToken);
         enqueueSnackbar('Privy token is valid, welcome to NexAI!', { variant: 'success' });
-        setSelectedChains((prev) => [...prev, chains.find(chain => chain.id === "arbitrum")!]);
+        setSelectedChains((prev) => [...prev, chains.find(chain => chain.id === "base")!]);
         setShowArbitrumModal(false);
       } else {
         console.error('Error in API response:', data);
@@ -360,11 +360,11 @@ export default function Home() {
         />
       )}
       {showArbitrumModal && (
-        <ArbitrumExplanationModal
+        <BaseExplanationModal
           onClose={() => {
             setSelectedChains((prev) => {
-              if (prev.map(chain => chain.id).includes("arbitrum")) {
-                return prev.filter((chain) => chain.id !== "arbitrum");
+              if (prev.map(chain => chain.id).includes("base")) {
+                return prev.filter((chain) => chain.id !== "base");
               }
               return prev;
             });
