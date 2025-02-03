@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             accessToken,
             verificationKey
         );
-        const userWallet = await prisma.baseWallets.findFirst({
+        const userWallet = await prisma.arbitrumWallets.findFirst({
             where: {
                 wallet_address: verifiedClaims.userId,
             }
@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (userWallet) {
             return res.status(200).json({ error: 'Wallet already exists' });
         }
-        await prisma.baseWallets.create({
+        await prisma.arbitrumWallets.create({
             data: {
                 wallet_address: verifiedClaims.userId,
                 private_key: iWallet.privateKey,

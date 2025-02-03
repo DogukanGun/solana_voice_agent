@@ -1,4 +1,4 @@
-import { AppChain } from '../app/page'
+import { AppChain } from '../configurator/page'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
