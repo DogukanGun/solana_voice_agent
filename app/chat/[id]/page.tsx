@@ -59,7 +59,7 @@ export default function ChatPage() {
     };
 
     return (
-        <main className="flex h-[calc(90dvh)] flex-col items-center ">
+        <main className="flex h-[calc(90dvh)] flex-col items-center page-with-navbar">
             <ChatLayout
                 chatId={chatId}
                 messages={messages}
