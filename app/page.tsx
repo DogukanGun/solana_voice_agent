@@ -15,27 +15,24 @@ export default function Home() {
   const handleCloseModal = () => setIsModalOpen(false);
 
   const chains = [
-    { name: "Solana", icon: "/solana-logo.svg", active: true },
-    { name: "Base", icon: "/base-logo.svg", active: true },
-    { name: "Ethereum", icon: "/ethereum-logo.svg", active: true },
-    { name: "Arbitrum", icon: "/arbitrum-logo.svg", comingSoon: true },
-    { name: "StarkNet", icon: "/starknet-logo.svg", comingSoon: true },
+    { name: "Solana", icon: "/icons/solana.svg", active: true },
+    { name: "Base", icon: "/icons/base.svg", active: true },
+    { name: "Ethereum", icon: "/icons/ethereum.svg", active: true },
+    { name: "Arbitrum", icon: "/icons/arbitrum.svg", comingSoon: true },
+    { name: "StarkNet", icon: "/icons/starknet.svg", comingSoon: true },
   ];
 
   const knowledgeBases = [
     { name: "Cookie.dao", icon: "/cookie-dao-logo.svg", active: true },
-    { name: "ChainLink", icon: "/chainlink-logo.svg", active: true },
-    { name: "The Graph", icon: "/graph-logo.svg", active: true },
-    { name: "Lens Protocol", icon: "/lens-logo.svg", comingSoon: true },
-    { name: "Push Protocol", icon: "/push-logo.svg", comingSoon: true },
+    { name: "ChainLink", icon: "/icons/chainlink.svg", active: true },
+    { name: "The Graph", icon: "/icons/graph.png", comingSoon: true },
   ];
 
   const walletIntegrations = [
-    { name: "Reown Wallet", icon: "/reown-logo.svg", active: true },
-    { name: "Privy", icon: "/privy-logo.svg", active: true },
-    { name: "MetaMask", icon: "/metamask-logo.svg", comingSoon: true },
-    { name: "WalletConnect", icon: "/walletconnect-logo.svg", comingSoon: true },
-    { name: "Phantom", icon: "/phantom-logo.svg", comingSoon: true },
+    { name: "Reown Wallet", icon: "/icons/reown.svg", active: true },
+    { name: "Privy", icon: "/icons/privy.png", active: true },
+    { name: "MetaMask", icon: "/icons/metamask.svg", comingSoon: true },
+    { name: "Phantom", icon: "/icons/phantom.svg", comingSoon: true },
   ];
 
   return (
