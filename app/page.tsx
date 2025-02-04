@@ -23,7 +23,7 @@ export default function Home() {
   ];
 
   const knowledgeBases = [
-    { name: "Cookie.dao", icon: "/cookie-dao-logo.svg", active: true },
+    { name: "Cookie.dao", icon: "/icons/cookiefun.png", active: true },
     { name: "ChainLink", icon: "/icons/chainlink.svg", active: true },
     { name: "The Graph", icon: "/icons/graph.png", comingSoon: true },
   ];
@@ -31,8 +31,8 @@ export default function Home() {
   const walletIntegrations = [
     { name: "Reown Wallet", icon: "/icons/reown.svg", active: true },
     { name: "Privy", icon: "/icons/privy.png", active: true },
-    { name: "MetaMask", icon: "/icons/metamask.svg", comingSoon: true },
-    { name: "Phantom", icon: "/icons/phantom.svg", comingSoon: true },
+    { name: "MetaMask", icon: "/icons/metamask.svg", active: true },
+    { name: "Phantom", icon: "/icons/phantom.svg", active: true, comingSoon:false},
   ];
 
   return (

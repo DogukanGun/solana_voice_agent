@@ -4,7 +4,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { StructuredToolInterface } from "@langchain/core/tools";
 
 // Define an interface for llmConfig
-interface LLMConfig {
+export interface LLMConfig {
     modelName: string;
     temperature: number;
 }
