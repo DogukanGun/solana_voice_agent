@@ -11,5 +11,5 @@ export function createKnowledgeReactAgent(agentName: LLMConfig, messageModifier:
         new GetAgentsPagedTool(),
         new SearchTweetsTool(),
         new GetAgentByContractAddressTool(),
-    ], messageModifier);
+    ], messageModifier, false);
 } 

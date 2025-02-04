@@ -25,27 +25,23 @@ export default function Home() {
       name: 'Base AI Bot',
       description: 'Navigate Base network, handle transactions, and access DeFi protocols. Works in text mode only.',
       poweredBy: 'OpenAI',
-      requiresPrivy: false
+      requiresPrivy: true
     },
     {
       id: '3',
       name: 'Ethereum AI Bot',
       description: 'Coming Soon. Manage Ethereum assets, interact with smart contracts, and explore the ecosystem. Works in text mode only.',
       poweredBy: 'Coinbase Agent Kit',
-      requiresPrivy: false
+      requiresPrivy: true
     },
     {
       id: '4',
       name: 'Base with Llama 3.1',
       description: 'Coming Soon. Interact with Base network using Llama 3.1. Works in text mode only.',
       poweredBy: 'Gaia OnChain',
-      requiresPrivy: false
+      requiresPrivy: true
     }
   ])
-
-  const [selectedChain, setSelectedChain] = useState<string>('')
-  const isVoiceModeEnabled = selectedChain === 'Solana'
-
   return (
     <main className="min-h-screen bg-gradient-to-b bg-black text-white page-with-navbar">
       <div className="container mx-auto px-4 py-8">

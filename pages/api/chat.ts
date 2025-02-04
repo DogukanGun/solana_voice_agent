@@ -1,4 +1,4 @@
-import { createKnowledgeReactAgent } from "@/knowledge/createReactAgent";
+import { createKnowledgeReactAgent } from "@/knowledge/cookie/createReactAgent";
 import { withAuth } from "@/middleware/withAuth";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -133,5 +133,5 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             break;
     }
 }
-
 export default withAuth(handler); 
+
