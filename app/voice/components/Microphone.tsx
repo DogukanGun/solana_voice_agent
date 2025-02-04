@@ -9,6 +9,7 @@ import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import type { Provider } from "@reown/appkit-adapter-solana";
 import { VersionedTransaction } from "@solana/web3.js";
 import { apiService } from "@/app/services/ApiService";
+import { useConfigStore } from "@/app/store/configStore";
 
 export default function Microphone() {
   const [micOpen, setMicOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function Microphone() {
   const [messageHistory, setMessageHistory] = useState<ChatCompletionMessageParam[]>([]);
   const { walletProvider } = useAppKitProvider<Provider>("solana");
   const { address } = useAppKitAccount();
+  const stores = useConfigStore();
 
   const toggleMicrophone = useCallback(async () => {
     if (microphone && userMedia) {
@@ -64,20 +66,33 @@ export default function Microphone() {
       console.error("Error transcribing audio:", error);
     }
   };
+  const handleSolAi = async (text: string) => {
+    const res = await apiService.postBotSolana(text, address!);
+    console.log("Bot response", res.text);
+
+    if (res.text) {
+      setCaption(res.text);
+      setMessageHistory([...messageHistory, { role: "assistant", content: res.text }  ]);
+    } else {
+      const serializedTransaction = Buffer.from(res.transaction!, "base64");
+      const tx = VersionedTransaction.deserialize(serializedTransaction);
+      try {
+        await walletProvider.signAndSendTransaction(tx);
+      } catch (e) {
+        console.log(e);
+        setMessageHistory([...messageHistory, { role: "assistant", content: "Transaction failed, please try again" }  ]);
+      }
+    }
+  } 
 
   const generateAudio = async (caption: string) => {
     try {
-      const { text, audio } = await apiService.postChat(caption, messageHistory);
+      const { text, audio, op } = await apiService.postChat(caption, messageHistory, stores.chains);
 
-      if (text.includes("sol_ai")) {
-        const res = await apiService.postBot(text, address!);
-
-        const serializedTransaction = Buffer.from(res.transaction!, "base64");
-        const tx = VersionedTransaction.deserialize(serializedTransaction);
-        await walletProvider.signAndSendTransaction(tx);
+      if (op === "solana") {
+        handleSolAi(text);
       } else {
         setCaption(text);
-
         const audioBlob = new Blob([Uint8Array.from(atob(audio!), (c) => c.charCodeAt(0))], {
           type: "audio/mpeg",
         });
@@ -85,7 +100,6 @@ export default function Microphone() {
         setMessageHistory((prev) => [...prev, { role: "system", content: text }]);
         const audioToPlay = new Audio(audioUrl);
         audioToPlay.play();
-
         // Cleanup URL after playback
         audioToPlay.onended = () => {
           URL.revokeObjectURL(audioUrl);
@@ -112,11 +126,10 @@ export default function Microphone() {
             alt="Recording Icon"
             width={96}
             height={96}
-            className={`cursor-pointer w-full h-full ${
-              !!userMedia && !!microphone && micOpen
+            className={`cursor-pointer w-full h-full ${!!userMedia && !!microphone && micOpen
                 ? "fill-red-400 drop-shadow-glowRed"
                 : "fill-gray-600"
-            }`}
+              }`}
           />
         </button>
         <div className="mt-20 p-6 text-xl text-center">

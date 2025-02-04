@@ -16,24 +16,35 @@ export default function Home() {
     {
       id: '1',
       name: 'Solana AI Bot',
-      description: 'Interact with Solana blockchain, manage tokens, and get real-time information',
-      poweredBy: 'SendAI'
+      description: 'Interact with Solana blockchain, manage tokens, and get real-time information. Works in text and voice mode.',
+      poweredBy: 'SendAI',
+      requiresPrivy: false
     },
     {
       id: '2',
       name: 'Base AI Bot',
-      description: 'Navigate Base network, handle transactions, and access DeFi protocols. Requires Privy login for embedded wallet functionality.',
-      poweredBy: 'Coinbase Agent Kit',
-      requiresPrivy: true
+      description: 'Navigate Base network, handle transactions, and access DeFi protocols. Works in text mode only.',
+      poweredBy: 'OpenAI',
+      requiresPrivy: false
     },
     {
       id: '3',
       name: 'Ethereum AI Bot',
-      description: 'Manage Ethereum assets, interact with smart contracts, and explore the ecosystem. Requires Privy login for embedded wallet functionality.',
+      description: 'Coming Soon. Manage Ethereum assets, interact with smart contracts, and explore the ecosystem. Works in text mode only.',
       poweredBy: 'Coinbase Agent Kit',
-      requiresPrivy: true
+      requiresPrivy: false
+    },
+    {
+      id: '4',
+      name: 'Base with Llama 3.1',
+      description: 'Coming Soon. Interact with Base network using Llama 3.1. Works in text mode only.',
+      poweredBy: 'Gaia OnChain',
+      requiresPrivy: false
     }
   ])
+
+  const [selectedChain, setSelectedChain] = useState<string>('')
+  const isVoiceModeEnabled = selectedChain === 'Solana'
 
   return (
     <main className="min-h-screen bg-gradient-to-b bg-black text-white page-with-navbar">
@@ -72,7 +83,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {predefinedAgents.map((agent) => (
               <div key={agent.id} 
-                   className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+                   className={`p-6 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 ${agent.description.includes('Coming Soon') ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 <h3 className="text-xl font-semibold mb-2 text-purple-400">{agent.name}</h3>
                 <p className="text-gray-300 mb-4">{agent.description}</p>
                 <div className="flex items-center justify-between">
@@ -82,6 +93,16 @@ export default function Home() {
                   {agent.requiresPrivy && (
                     <span className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">
                       Requires Privy Login
+                    </span>
+                  )}
+                  {agent.description.includes('Coming Soon') && (
+                    <span className="absolute top-2 right-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
+                      Coming Soon
+                    </span>
+                  )}
+                  {agent.name === 'Base with Llama 3.1' && (
+                    <span className="absolute top-2 right-10 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                      On Chain Bot
                     </span>
                   )}
                 </div>

@@ -115,6 +115,8 @@ const agentTypes = [
 const primaryButtonClass =
   "px-4 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition duration-300";
 
+const totalSteps = 5; // Update total steps to include the new step
+
 export default function Home() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -132,6 +134,7 @@ export default function Home() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<number | null>(1);
+  const [selectedConnectionType, setSelectedConnectionType] = useState<string>("apiKeys");
 
   const handleChainSelection = (chainId: string) => {
     const selectedChain = chains.find(chain => chain.id === chainId);
@@ -169,11 +172,23 @@ export default function Home() {
       return; // Prevent selection if the agent type is disabled
     }
 
+    // Check if a chain other than Solana is selected
+    const isVoiceAgent = typeId === "voice";
+    const isSolanaSelected = selectedChains.some(chain => chain.id === "solana");
+
+    if (isVoiceAgent && !isSolanaSelected) {
+      return; // Prevent selection of voice agent if Solana is not selected
+    }
+
     setSelectedAgentType((prev) => (prev === typeId ? "" : typeId));
   };
 
+  const handleConnectionSelection = (connectionType: string) => {
+    setSelectedConnectionType(connectionType);
+  };
+
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -249,6 +264,14 @@ export default function Home() {
       default:
         return "";
     }
+  };
+
+  const isConnectionStepValid = () => {
+    return selectedConnectionType !== "";
+  };
+
+  const getConnectionErrorMessage = () => {
+    return "Please select a connection type";
   };
 
   const WalletRequiredModal = ({ onClose }: { onClose: () => void }) => {
@@ -363,9 +386,9 @@ export default function Home() {
         </div>
 
         <div className="space-y-4 max-w-3xl mx-auto">
-          <Accordion 
-            title="1. Select Chains" 
-            isOpen={openSection === 1} 
+          <Accordion
+            title="1. Select Chains"
+            isOpen={openSection === 1}
             onToggle={() => setOpenSection(openSection === 1 ? null : 1)}
             isValid={isStepValid(1)}
           >
@@ -441,9 +464,9 @@ export default function Home() {
             </div>
           </Accordion>
 
-          <Accordion 
-            title="2. Knowledge Bases" 
-            isOpen={openSection === 2} 
+          <Accordion
+            title="2. Knowledge Bases"
+            isOpen={openSection === 2}
             onToggle={() => setOpenSection(openSection === 2 ? null : 2)}
             isValid={isStepValid(2)}
           >
@@ -475,9 +498,9 @@ export default function Home() {
             </div>
           </Accordion>
 
-          <Accordion 
-            title="3. Select LLM Provider" 
-            isOpen={openSection === 3} 
+          <Accordion
+            title="3. Select LLM Provider"
+            isOpen={openSection === 3}
             onToggle={() => setOpenSection(openSection === 3 ? null : 3)}
             isValid={isStepValid(3)}
           >
@@ -513,9 +536,9 @@ export default function Home() {
             </div>
           </Accordion>
 
-          <Accordion 
-            title="4. Select Agent Type" 
-            isOpen={openSection === 4} 
+          <Accordion
+            title="4. Select Agent Type"
+            isOpen={openSection === 4}
             onToggle={() => setOpenSection(openSection === 4 ? null : 4)}
             isValid={isStepValid(4)}
           >
@@ -528,7 +551,7 @@ export default function Home() {
                     onClick={() => handleAgentTypeSelection(type.id)}
                     className={`
                       ${type.disabled
-                        ? "opacity-50 cursor-not-allowed"
+                        ? "bg-gray-400 opacity-50 cursor-not-allowed"
                         : selectedAgentType === type.id
                           ? selectedButtonClass
                           : buttonClass
@@ -551,14 +574,47 @@ export default function Home() {
             </div>
           </Accordion>
 
+          <Accordion
+            title="5. Connection"
+            isOpen={openSection === 5}
+            onToggle={() => setOpenSection(openSection === 5 ? null : 5)}
+            isValid={isConnectionStepValid()}
+          >
+            <div>
+              <h2 className="text-2xl font-bold mb-4 text-white">Select Connection Type</h2>
+              <div className={cardContainerClass}>
+                <button
+                  onClick={() => handleConnectionSelection("apiKeys")}
+                  className={`
+                    ${selectedConnectionType === "apiKeys" ? selectedButtonClass : buttonClass}
+                    ${cardClass}
+                  `}
+                >
+                  <span className={buttonTextClass}>Connection with API Keys</span>
+                </button>
+                <button
+                  onClick={() => handleConnectionSelection("gaia")}
+                  className={`
+                    ${selectedConnectionType === "gaia" ? selectedButtonClass : buttonClass}
+                    ${cardClass}
+                  `}
+                >
+                  <span className={buttonTextClass}>Connection with Gaia (OnChain)</span>
+                </button>
+              </div>
+              {!isConnectionStepValid() && (
+                <p className="text-red-500">{getConnectionErrorMessage()}</p>
+              )}
+            </div>
+          </Accordion>
+
           <div className="flex justify-end mt-8">
             <button
               onClick={handleStart}
-              className={`${primaryButtonClass} ${
-                !isStepValid(1) || !isStepValid(3) || !isStepValid(4) 
-                  ? "opacity-50 cursor-not-allowed" 
+              className={`${primaryButtonClass} ${!isStepValid(1) || !isStepValid(3) || !isStepValid(4)
+                  ? "opacity-50 cursor-not-allowed"
                   : ""
-              }`}
+                }`}
               disabled={!isStepValid(1) || !isStepValid(3) || !isStepValid(4)}
             >
               Start

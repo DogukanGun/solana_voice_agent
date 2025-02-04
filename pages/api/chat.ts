@@ -33,7 +33,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const multichainMessage = {
                 role: "system",
                 content: `If the message is about executing a transaction in blockchain,
-                and if which chain the transaction is to be executed is not mentioned, then you must ask which one of the following chains ${chains.join(", ")} the transaction is to be executed on.
+                and if which chain the transaction is to be executed is not mentioned, then you must ask which one of the following chains ${chains?.join(", ")} the transaction is to be executed on.
                 If it is mentioned, then you must change \"{text:\${user_message}, op:tx}\" to \"{text:\${user_message}, op:tx, chain:\${chain}}\"`
             }
             const systemMessage = [{
