@@ -9,8 +9,13 @@ export interface LLMConfig {
     temperature: number;
 }
 
-export const createAgent = (llmConfig: LLMConfig, tools: StructuredToolInterface[], messageModifier: string) => {
-    const llm = new ChatOpenAI(llmConfig);
+export const createAgent = (llmConfig: LLMConfig, tools: StructuredToolInterface[], messageModifier: string, isOnchain: boolean) => {
+    const llm = isOnchain ? new ChatOpenAI(llmConfig) : new ChatOpenAI({
+        model: "llama",
+        apiKey: "GAIA",
+    }, {
+        baseURL: "https://llamatool.us.gaianet.network/v1"
+    });
     const memory = new MemorySaver();
 
     return createReactAgent({

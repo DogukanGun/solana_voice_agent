@@ -7,6 +7,7 @@ interface ConfigState {
   llmProvider: string
   agentType: string
   isConfigured: boolean
+  isOnchain: boolean
   isPremiumVerified: boolean
   knowledgeBase: string[]
   setConfig: (config: { chains: AppChain[]; llmProvider: string; agentType: string }) => void
@@ -22,6 +23,7 @@ export const useConfigStore = create<ConfigState>()(
       llmProvider: '',
       agentType: '',
       isConfigured: false,
+      isOnchain: false,
       isPremiumVerified: false,
       knowledgeBase: [],
       setConfig: (config) => 
@@ -32,6 +34,7 @@ export const useConfigStore = create<ConfigState>()(
           llmProvider: '', 
           agentType: '', 
           isConfigured: false,
+          isOnchain: false,
           isPremiumVerified: false,
           knowledgeBase: []
         }),

@@ -7,7 +7,7 @@ import { HumanMessage } from "@langchain/core/messages";
 import { Coinbase } from "@coinbase/coinbase-sdk/dist/coinbase/coinbase";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const { walletData, text } = req.body;
+    const { walletData, text, isOnchain } = req.body;
 
     const wallet = await prisma.arbitrumWallets.findFirst({
         where: {
@@ -28,7 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         apiKeyName: process.env.CDP_API_KEY_NAME,
         apiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n"),
         mnemonicPhrase: wallet.mnemonic ?? undefined,
-        networkId: Coinbase.networks.ArbitrumMainnet,
+        networkId: Coinbase.networks.BaseMainnet,
     };
     const agentkit = await CdpAgentkit.configureWithWallet(config);
     const cdpToolkit = new CdpToolkit(agentkit);
@@ -38,6 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         { modelName: "gpt-4o-mini", temperature: 0.3 },
         tools,
         "You are a helpful agent that can interact onchain using the Coinbase Developer Platform AgentKit...",
+        isOnchain
     );
 
     let response = "";
