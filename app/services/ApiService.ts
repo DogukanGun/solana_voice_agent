@@ -170,12 +170,13 @@ class ApiService {
   async postChat(
     caption: string, 
     messageHistory: ChatCompletionMessageParam[] | Message[],
-    chains: AppChain[]
+    chains: AppChain[],
+    knowledge: string[]
   ): Promise<ChatResponse> {
     return this.fetchWithToken("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ caption, messageHistory, chains }),
+      body: JSON.stringify({ caption, messageHistory, chains, knowledge }),
     });
   }
 

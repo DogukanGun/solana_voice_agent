@@ -20,9 +20,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         case 'POST':
             // Handle POST request
-            const { caption, messageHistory, chains } = req.body;
-            if (!caption || typeof caption !== "string") {
-                return res.status(400).json({ error: "Caption is required and should be a string." });
+            const { caption, messageHistory, chains, knowledge } = req.body;
+            if (!caption || typeof caption !== "string" || !chains || !Array.isArray(chains)) {
+                return res.status(400).json({ error: "Caption is required and should be a string, and chains must be an array." });
             }
 
             const openai = new OpenAI(
@@ -74,7 +74,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                         audio: "",
                         op: message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : chains[0].id
                     });
-                } else {
+                } else if(knowledge.length > 0 && (knowledge as string[]).includes("Cookie.Dao")){
                     console.log("Not a transaction")
                     console.log("Asking Cookie.Dao")
                     const reactAgent = createKnowledgeReactAgent(
