@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import VideoPlayer from "./components/VideoPlayer";
 import { motion } from "framer-motion";
+import Image from 'next/image';
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +25,7 @@ export default function Home() {
 
   const knowledgeBases = [
     { name: "Cookie.dao", icon: "/icons/cookiefun.png", active: true },
-    { name: "ChainLink", icon: "/icons/chainlink.svg", active: true },
+    { name: "ChainLink", icon: "/icons/chainlink.svg", comingSoon: true },
     { name: "The Graph", icon: "/icons/graph.png", comingSoon: true },
   ];
 
@@ -140,10 +141,11 @@ export default function Home() {
               >
                 <div className={`p-6 rounded-xl bg-gradient-to-b from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 transition-all duration-300 hover:border-orange-500/50 ${chain.comingSoon ? 'opacity-70' : ''}`}>
                   <div className="flex flex-col items-center">
-                    <img
+                    <Image
                       src={chain.icon}
                       alt={`${chain.name} logo`}
-                      className="w-16 h-16 mb-4"
+                      width={64}
+                      height={64}
                     />
                     <h3 className="text-lg font-semibold text-white mb-2">{chain.name}</h3>
                     {chain.comingSoon && (
@@ -189,10 +191,11 @@ export default function Home() {
               >
                 <div className={`p-6 rounded-xl bg-gradient-to-b from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 transition-all duration-300 hover:border-orange-500/50 ${kb.comingSoon ? 'opacity-70' : ''}`}>
                   <div className="flex flex-col items-center">
-                    <img
+                    <Image
                       src={kb.icon}
                       alt={`${kb.name} logo`}
-                      className="w-16 h-16 mb-4"
+                      width={64}
+                      height={64}
                     />
                     <h3 className="text-lg font-semibold text-white mb-2">{kb.name}</h3>
                     {kb.comingSoon && (
@@ -238,10 +241,11 @@ export default function Home() {
               >
                 <div className={`p-6 rounded-xl bg-gradient-to-b from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 transition-all duration-300 hover:border-orange-500/50 ${wallet.comingSoon ? 'opacity-70' : ''}`}>
                   <div className="flex flex-col items-center">
-                    <img
+                    <Image
                       src={wallet.icon}
                       alt={`${wallet.name} logo`}
-                      className="w-16 h-16 mb-4"
+                      width={64}
+                      height={64}
                     />
                     <h3 className="text-lg font-semibold text-white mb-2">{wallet.name}</h3>
                     {wallet.comingSoon && (

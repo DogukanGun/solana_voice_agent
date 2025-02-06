@@ -13,13 +13,8 @@ import BaseExplanationModal from "../components/BaseExplanationModalProps";
 import { usePrivy } from "@privy-io/react-auth";
 import Cookies from 'js-cookie';
 import { enqueueSnackbar } from "notistack";
-import { useLoading } from '../context/LoadingContext';
 import Accordion from "../components/Accordion";
 
-interface StepperProps {
-  currentStep: number;
-  totalSteps: number;
-}
 
 export interface AppChain {
   id: string;
@@ -39,6 +34,11 @@ const knowledgeBases: KnowledgeBase[] = [
   {
     id: "cookieDao",
     name: "Cookie Dao",
+    disabled: false,
+  },
+  {
+    id: "eigenlayer",
+    name: "Eigenlayer",
     disabled: false,
   },
 ];
@@ -64,20 +64,6 @@ const chains: AppChain[] = [
     isEmbedded: true,
     disabled: true,
     icon: "/icons/arbitrum.svg",
-  },
-  {
-    id: "eigenlayer",
-    name: "Eigenlayer",
-    disabled: true,
-    isEmbedded: false,
-    icon: "/icons/eigenlayer.svg",
-  },
-  {
-    id: "ethereum",
-    name: "Ethereum",
-    disabled: true,
-    isEmbedded: true,
-    icon: "/icons/ethereum.svg",
   },
   {
     id: "polygon",
@@ -481,11 +467,11 @@ export default function Home() {
                       setSelectedKnowledgeBases((prev) =>
                         prev.some(kb => kb.id === knowledgeBase!.id)
                           ? prev.filter(kb => kb.id !== knowledgeBase!.id)
-                          : knowledgeBase ? [...prev, knowledgeBase] : prev // Add the object if found
+                          : knowledgeBase ? [...prev, knowledgeBase] : prev
                       );
                     }}
                     className={`
-                      ${selectedKnowledgeBases.some(kb => kb.id === kb.id) ? selectedButtonClass : buttonClass}
+                      ${selectedKnowledgeBases.some(selectedKb => selectedKb.id === kb.id) ? selectedButtonClass : buttonClass}
                       ${cardClass}
                     `}
                   >
@@ -617,7 +603,7 @@ export default function Home() {
                 }`}
               disabled={!isStepValid(1) || !isStepValid(3) || !isStepValid(4)}
             >
-              Start
+              Create and Start
             </button>
           </div>
         </div>

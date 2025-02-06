@@ -1,4 +1,4 @@
-import { createKnowledgeReactAgent } from "@/knowledge/cookie/createReactAgent";
+import { agent, createKnowledgeReactAgent } from "@/knowledge/createReactAgent";
 import { withAuth } from "@/middleware/withAuth";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -20,7 +20,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         case 'POST':
             // Handle POST request
-            const { caption, messageHistory, chains, knowledge } = req.body;
+            const { caption, messageHistory, chains, knowledge, isOnchain } = req.body;
             if (!caption || typeof caption !== "string" || !chains || !Array.isArray(chains)) {
                 return res.status(400).json({ error: "Caption is required and should be a string, and chains must be an array." });
             }
@@ -74,12 +74,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                         audio: "",
                         op: message.content.includes("chain") ? message.content.split("chain:")[1].split("_ai")[0] : chains[0].id
                     });
-                } else if(knowledge.length > 0 && (knowledge as string[]).includes("Cookie.Dao")){
-                    console.log("Not a transaction")
-                    console.log("Asking Cookie.Dao")
+                } else if(knowledge.length > 0){
+                    const validAgents: agent[] = knowledge.filter((agent: string) => agent === 'cookie' || agent === 'eigenlayer');
                     const reactAgent = createKnowledgeReactAgent(
                         { modelName: "gpt-4o-mini", temperature: 0.3 },
                         "You are a helpful agent that can answer questions about the blockchain.",
+                        validAgents,
+                        isOnchain
                     );
                     const stream = await reactAgent.stream(
                         {
