@@ -24,7 +24,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             if (!caption || typeof caption !== "string" || !chains || !Array.isArray(chains)) {
                 return res.status(400).json({ error: "Caption is required and should be a string, and chains must be an array." });
             }
-
             const openai = new OpenAI(
                 {
                     apiKey: process.env.OPEN_AI_KEY

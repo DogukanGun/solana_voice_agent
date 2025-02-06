@@ -59,6 +59,13 @@ const chains: AppChain[] = [
     icon: "/icons/base.svg",
   },
   {
+    id: "ethereum",
+    name: "Ethereum",
+    isEmbedded: true,
+    disabled: true,
+    icon: "/icons/ethereum.svg",
+  },
+  {
     id: "arbitrum",
     name: "Arbitrum",
     isEmbedded: true,
@@ -83,10 +90,15 @@ const chains: AppChain[] = [
 
 const llmProviders = [
   {
+    id: "openai", name: "OpenAI"
+  },
+  {
+    id: "llama_onchain", name: "Llama 3.1 Onchain - Powered by Gaia"
+  },
+  {
     id: "claude", disabled: true,
     name: "Claude"
   },
-  { id: "openai", name: "OpenAI" },
   {
     id: "llama", disabled: true,
     name: "Llama 3.1"
@@ -121,6 +133,7 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<number | null>(1);
   const [selectedConnectionType, setSelectedConnectionType] = useState<string>("apiKeys");
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   const handleChainSelection = (chainId: string) => {
     const selectedChain = chains.find(chain => chain.id === chainId);
@@ -140,9 +153,26 @@ export default function Home() {
   };
 
   const handleLLMSelection = (llmId: string) => {
+    if (selectedChains.length === 0) {
+      setShowWarningModal(true);
+      return;
+    }
+
     const selectedProvider = llmProviders.find(provider => provider.id === llmId);
     if (selectedProvider?.disabled) {
-      return; // Prevent selection if the provider is disabled
+      return;
+    }
+
+    const isSolanaSelected = selectedChains.some(chain => chain.id === "solana");
+    const isBaseSelected = selectedChains.some(chain => chain.id === "base");
+    const isEthereumSelected = selectedChains.some(chain => chain.id === "ethereum");
+
+    if (isSolanaSelected && llmId === "llama_onchain") {
+      return;
+    }
+
+    if ((isBaseSelected || isEthereumSelected) && llmId === "claude") {
+      return;
     }
 
     if (llmId === 'claude' || llmId === 'openai') {
@@ -336,6 +366,27 @@ export default function Home() {
     };
   }, []);
 
+  const WarningModal = ({ onClose }: { onClose: () => void }) => {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full mx-4">
+          <h3 className="text-xl font-bold text-white mb-4">Selection Required</h3>
+          <p className="text-gray-300 mb-6">
+            Please select at least one chain before choosing an LLM provider.
+          </p>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b bg-black text-white page-with-navbar">
       {showPaymentModal && (
@@ -362,6 +413,9 @@ export default function Home() {
           }}
           onAuthenticated={onAuthenticated}
         />
+      )}
+      {showWarningModal && (
+        <WarningModal onClose={() => setShowWarningModal(false)} />
       )}
 
       <div className="w-full h-screen bg-black rounded-none p-8">
@@ -493,31 +547,32 @@ export default function Home() {
             <div>
               <h2 className="text-2xl font-bold mb-4 text-white">Select LLM Provider</h2>
               <div className={cardContainerClass}>
-                {llmProviders.map((provider) => (
-                  <button
-                    key={provider.id}
-                    onClick={() => handleLLMSelection(provider.id)}
-                    className={`
-                      ${provider.disabled
-                        ? "opacity-50 cursor-not-allowed"
-                        : selectedLLM === provider.id
-                          ? selectedButtonClass
-                          : buttonClass
-                      }
-                      ${cardClass}
-                    `}
-                    disabled={provider.disabled}
-                  >
-                    <div className={buttonContentClass}>
-                      <span className={buttonTextClass}>{provider.name}</span>
-                    </div>
-                    {provider.disabled && (
-                      <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
-                        Coming Soon
-                      </span>
-                    )}
-                  </button>
-                ))}
+                {llmProviders.map((provider) => {
+                  const isDisabled = (provider.id === "llama_onchain" && selectedChains.some(chain => chain.id === "solana")) ||
+                                     (provider.id === "claude" && (selectedChains.some(chain => chain.id === "base") || selectedChains.some(chain => chain.id === "ethereum"))) ||
+                                     (selectedChains.length === 0); // Disable if no chains are selected
+
+                  return (
+                    <button
+                      key={provider.id}
+                      onClick={() => handleLLMSelection(provider.id)}
+                      className={`
+                        ${isDisabled ? "opacity-50 cursor-not-allowed" : selectedLLM === provider.id ? selectedButtonClass : buttonClass}
+                        ${cardClass}
+                      `}
+                      disabled={isDisabled}
+                    >
+                      <div className={buttonContentClass}>
+                        <span className={buttonTextClass}>{provider.name}</span>
+                      </div>
+                      {provider.disabled && (
+                        <span className="absolute -top-2 -right-2 bg-purple-500 text-xs px-2 py-1 rounded-full text-white">
+                          Coming Soon
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </Accordion>
