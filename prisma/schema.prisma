@@ -33,6 +33,22 @@ model SpecialUserCodes {
   used_by         String
 }
 
+model ArbitrumWallets {
+  id              Int      @id @default(autoincrement())
+  wallet_address  String   @unique
+  private_key     String
+  is_verified     Boolean @default(false)
+  mnemonic        String?
+}
+
+model BaseWallets {
+  id              Int      @id @default(autoincrement())
+  wallet_address  String   @unique
+  private_key     String
+  is_verified     Boolean @default(false)
+  mnemonic        String?
+}
+
 model Admins {
   wallet_address String @id
 }
@@ -48,4 +64,39 @@ model WalletInteraction {
   user String
   operation String
   success Boolean @default(false)
+}
+
+model Chains {
+  id: String @id;
+  name: String;
+  isEmbedded: Boolean @default(false);
+  disabled: Boolean @default(false)
+  icon: String;
+}
+
+model LlmProviders {
+  id: String @id;
+  name: String;
+  disabled: Boolean @default(false)
+}
+
+model KnowledgeBases {
+  id: String @id;
+  name: String;
+  disabled: Boolean @default(false)
+}
+
+model Agents {
+  id: String @id;
+  name: String;
+  chains: Chains[];
+  llmProviders: LlmProviders[];
+  knowledgeBases: KnowledgeBases[];
+  isOnPointSystem: Boolean @default(false)
+}
+
+model AgentPoints {
+  id: String @id;
+  agentId: String;
+  points: Int;
 }

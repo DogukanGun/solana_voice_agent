@@ -31,6 +31,8 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
   const [selectedChatId, setSselectedChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     setSselectedChatId(chatId);
@@ -82,7 +84,8 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
   const handleChatClick = (chatId: string) => {
     const storedMessages = localStorage.getItem(chatId);
     if (storedMessages) {
-      router.push(`/${chatId.substr(5)}`);
+      setSelectedMessages(JSON.parse(storedMessages));
+      router.push(`/chat/${chatId.substr(5)}`);
     }
   };
 
@@ -94,10 +97,10 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
       <div className="flex flex-col justify-between p-2 max-h-fit overflow-y-auto">
         <Button
           onClick={() => {
-            router.push("/");
+            router.push("/chat");
           }}
           variant="ghost"
-          className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500"
+          className="flex justify-between w-full h-12 text-sm font-normal items-center text-white hover:bg-gray-700 hover:text-orange-500 transition-colors duration-200"
         >
           <div className="flex gap-3 items-center">
             {!isCollapsed && !isMobile && (
@@ -121,10 +124,9 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
               {localChats.map(({ chatId, messages }, index) => (
                 <div
                   key={index}
-                  onClick={() => handleChatClick(chatId)}
                   className="flex justify-between w-full h-12 text-sm font-normal items-center transition duration-300 text-white hover:text-orange-500 cursor-pointer"
                 >
-                  <div className="flex gap-2 items-center truncate">
+                  <div onClick={() => handleChatClick(chatId)} className="flex gap-2 items-center truncate">
                     <div className="flex flex-col">
                       <span className="text-xs font-normal">
                         {messages.length > 0 ? messages[0].content : ""}
@@ -135,36 +137,48 @@ export function Sidebar({ messages, isCollapsed, isMobile, chatId }: SidebarProp
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="flex justify-end items-center text-white hover:text-orange-500"
+                        className="flex justify-end items-center text-white hover:bg-gray-700 hover:text-orange-500 transition-colors duration-200"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal size={14} className="shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="bg-gray-800 border border-gray-600 shadow-lg rounded-md">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="w-full flex gap-2 justify-start items-center text-orange-500 hover:text-red-500"
-                            onClick={(e) => e.stopPropagation()}
+                            className="w-full flex gap-2 justify-start items-center text-orange-500 hover:bg-orange-500 hover:text-white transition-colors duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsOpen(true);
+                            }}
                           >
                             <Trash2 className="shrink-0 w-4 h-4" />
                             Delete chat
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="bg-gray-800 rounded-lg p-4">
                           <DialogHeader className="space-y-4">
-                            <DialogTitle className="text-orange-500">Delete chat?</DialogTitle>
-                            <DialogDescription className="text-orange-500">
-                              Are you sure you want to delete this chat? This action cannot be
-                              undone.
+                            <DialogTitle className="text-orange-500 text-lg font-semibold">Confirm Deletion</DialogTitle>
+                            <DialogDescription className="text-gray-300">
+                              Are you sure you want to delete this chat? This action cannot be undone.
                             </DialogDescription>
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline">Cancel</Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setIsOpen(false)}
+                                className="text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors duration-200"
+                              >
+                                Cancel
+                              </Button>
                               <Button
                                 variant="destructive"
-                                onClick={() => handleDeleteChat(chatId)}
+                                onClick={() => {
+                                  handleDeleteChat(chatId);
+                                  setIsOpen(false);
+                                }}
+                                className="bg-red-600 text-white hover:bg-red-700 transition-colors duration-200"
                               >
                                 Delete
                               </Button>

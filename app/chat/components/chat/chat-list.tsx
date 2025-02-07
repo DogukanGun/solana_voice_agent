@@ -76,27 +76,29 @@ export default function ChatList({ messages, isLoading, loadingSubmit }: ChatPro
                   <span className="bg-black p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
                     {message.content}
                   </span>
-                  <Avatar className="flex justify-start items-center overflow-hidden">
+                  <Avatar className="flex justify-start items-center overflow-hidden border-2 border-gray-300 hover:border-blue-500 transition-colors duration-200">
                     <AvatarImage
                       src="/"
                       alt="user"
                       width={6}
                       height={6}
-                      className="object-contain"
+                      className="object-contain rounded-full"
                     />
-                    <AvatarFallback>{name && name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback className="rounded-full flex items-center justify-center">
+                      <i className="fas fa-male text-white"></i>
+                    </AvatarFallback>
                   </Avatar>
                 </div>
               )}
               {message.role === "assistant" && (
                 <div className="flex items-end gap-2">
-                  <Avatar className="flex justify-start items-center">
+                  <Avatar className="flex justify-start items-center border-2 border-gray-300 hover:border-blue-500 transition-colors duration-200">
                     <AvatarImage
                       src="/nexarb.png"
                       alt="AI"
                       width={6}
                       height={6}
-                      className="object-contain dark:invert"
+                      className="object-contain rounded-full"
                     />
                   </Avatar>
                   <span className="bg-black p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">

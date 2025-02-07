@@ -1,5 +1,6 @@
 import { Message } from "ai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { AppChain } from "../configurator/page";
 
 type FetchOptions = RequestInit & {
   headers?: Record<string, string>;
@@ -33,6 +34,7 @@ type AdminResponse = {
 type ChatResponse = {
   text: string;
   audio?: string;
+  op?: string;
 };
 
 type BotResponse = {
@@ -64,7 +66,6 @@ type ChatHistory = {
 class ApiService {
   private async fetchWithToken<T>(url: string, options: FetchOptions = {}): Promise<T> {
     const token = localStorage.getItem("token");
-
     options.headers = {
       ...(options.headers || {}),
     };
@@ -136,8 +137,12 @@ class ApiService {
     });
   }
 
-  async checkUser(): Promise<{ isAllowed: boolean }> {
-    return this.fetchWithToken("/api/user/check", { method: "GET" });
+  async checkUser(identifier: string): Promise<{ isAllowed: boolean }> {
+    return this.fetchWithToken("/api/user/check", { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userWallet: identifier }),
+    });
   }
 
   async deleteUserCode(id: string): Promise<{ success: boolean }> {
@@ -162,19 +167,32 @@ class ApiService {
   }
 
   // New methods
-  async postChat(caption: string, messageHistory: ChatCompletionMessageParam[] | Message[]): Promise<ChatResponse> {
+  async postChat(
+    caption: string, 
+    messageHistory: ChatCompletionMessageParam[] | Message[],
+    chains: AppChain[],
+    knowledge: string[]
+  ): Promise<ChatResponse> {
     return this.fetchWithToken("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ caption, messageHistory }),
+      body: JSON.stringify({ caption, messageHistory, chains, knowledge }),
     });
   }
 
-  async postBot(text: string, address: string): Promise<BotResponse> {
-    return this.fetchWithToken("/api/bot", {
+  async postBotSolana(text: string, address: string): Promise<BotResponse> {
+    return this.fetchWithToken("/api/bot/solana", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: text.split("op")[0], address }),
+    });
+  }
+
+  async postBotBase(text: string, id: string): Promise<BotResponse> {
+    return this.fetchWithToken("/api/bot/base", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.split("op")[0], walletData:id }),
     });
   }
 
@@ -213,7 +231,7 @@ class ApiService {
   saveChatHistory(chatId: string, messages: Message[]): ChatHistory {
     try {
       localStorage.setItem(`chat_${chatId}`, JSON.stringify(messages));
-      const title = messages[0]?.content?.slice(0, 30) || 'New Chat';
+      const title = messages.length > 0 ? messages[0]?.content?.slice(0, 30) : 'New Chat';
       
       return {
         id: chatId,

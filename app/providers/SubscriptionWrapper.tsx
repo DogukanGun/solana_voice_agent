@@ -15,6 +15,8 @@ import { useAppKitConnection } from "@reown/appkit-adapter-solana/react";
 import { useSnackbar } from "notistack";
 import { apiService } from "../services/ApiService";
 import PopupComponent from "../components/PopupComponent";
+import { useConfigStore } from "../store/configStore";
+import { usePrivy } from "@privy-io/react-auth";
 
 type SubscriptionWrapperProps = {
   children: ReactNode;
@@ -29,14 +31,19 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   const { walletProvider } = useAppKitProvider<Provider>("solana");
   const { connection } = useAppKitConnection();
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = usePrivy();
+
+  const hasEmbeddedWallet = useConfigStore().chains.some(chain => chain.isEmbedded);
+  const hasUserWallet = useConfigStore().chains.some(chain => !chain.isEmbedded);
 
   const handleCheckCode = async (accessCode: string) => {
     try {
-      if (!address) {
+      if (hasUserWallet && !address) {
         console.error("No wallet address found");
         return;
       }
-      const checkUsercodeRes = await apiService.checkUsercode(accessCode, address);
+      const identifier = hasEmbeddedWallet ?  user ? user.id : "" : address!;
+      const checkUsercodeRes = await apiService.checkUsercode(accessCode, identifier);
       if (checkUsercodeRes.exists) {
         setIsAllowed(true);
         setShowPopup(false);
@@ -101,8 +108,9 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
   useEffect(() => {
     const checkSubscriptionStatus = async () => {
       try {
-        const response = await fetch("/api/user/check");
-        if (response.status === 200) {
+        const identifier = hasEmbeddedWallet ?  user ? user.id : "" : address!;
+        const response = await apiService.checkUser(identifier);
+        if (response.isAllowed) {
           setIsAllowed(true);
         } else {
           setShowPopup(true);
@@ -112,7 +120,6 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
         setShowPopup(true);
       }
     };
-
     checkSubscriptionStatus();
   }, []);
 
@@ -127,13 +134,11 @@ const SubscriptionWrapper: React.FC<SubscriptionWrapperProps> = ({ children }) =
     }
 
     return () => {
-      closeModal();
+      if (showPopup) {
+        closeModal();
+      }
     };
-  }, [closeModal, handleCheckCode, handleSubscribe, openModal, setModalContent]);
-
-  if (isAllowed) {
-    return <>{children}</>; // Render the page content if the user is allowed.
-  }
+  }, [showPopup, closeModal, handleCheckCode, handleSubscribe, openModal, setModalContent]);
 
   return <>{isAllowed && children}</>;
 };
