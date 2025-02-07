@@ -92,4 +92,11 @@ model Agents {
   chains: Chains[];
   llmProviders: LlmProviders[];
   knowledgeBases: KnowledgeBases[];
+  isOnPointSystem: Boolean @default(false)
+}
+
+model AgentPoints {
+  id: String @id;
+  agentId: String;
+  points: Int;
 }

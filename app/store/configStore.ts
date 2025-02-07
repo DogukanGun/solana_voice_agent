@@ -10,7 +10,8 @@ interface ConfigState {
   isOnchain: boolean
   isPremiumVerified: boolean
   knowledgeBase: string[]
-  setConfig: (config: { chains: AppChain[]; llmProvider: string; agentType: string }) => void
+  isPointSystemJoined: boolean
+  setConfig: (config: { chains: AppChain[]; llmProvider: string; agentType: string; isPointSystemJoined: boolean }) => void
   clearConfig: () => void
   setPremiumVerified: (verified: boolean) => void
   getFeatures: () => { value: string; label: string; }[]
@@ -26,6 +27,7 @@ export const useConfigStore = create<ConfigState>()(
       isOnchain: false,
       isPremiumVerified: false,
       knowledgeBase: [],
+      isPointSystemJoined: false,
       setConfig: (config) => 
         set({ ...config, isConfigured: true }),
       clearConfig: () => 
@@ -36,12 +38,13 @@ export const useConfigStore = create<ConfigState>()(
           isConfigured: false,
           isOnchain: false,
           isPremiumVerified: false,
-          knowledgeBase: []
+          knowledgeBase: [],
+          isPointSystemJoined: false
         }),
       setPremiumVerified: (verified) =>
         set({ isPremiumVerified: verified }),
       getFeatures: () => {
-        const { chains, llmProvider } = get();
+        const { chains, llmProvider, isPointSystemJoined } = get();
         const features = [];
         
         if (chains.length > 0) {
@@ -49,6 +52,9 @@ export const useConfigStore = create<ConfigState>()(
             features.push({ value: chain.name, label: "chain" });
           });
           features.push({ value: llmProvider, label: "LLM Provider" });
+        }
+        if (isPointSystemJoined) {
+          features.push({ value: "Point System", label: "Joined Point System" });
         }
         return features;
       },

@@ -118,7 +118,6 @@ const totalSteps = 5; // Update total steps to include the new step
 
 export default function Home() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
   const [selectedChains, setSelectedChains] = useState<typeof chains[number][]>([]);
   const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<typeof knowledgeBases[number][]>([]);
   const [selectedLLM, setSelectedLLM] = useState<string>("");
@@ -210,6 +209,7 @@ export default function Home() {
       chains: selectedChains,
       llmProvider: selectedLLM,
       agentType: selectedAgentType,
+      isPointSystemJoined: selectedConnectionType === "join",
     };
 
     useConfigStore.getState().setConfig(config);
@@ -577,36 +577,36 @@ export default function Home() {
           </Accordion>
 
           <Accordion
-            title="5. Connection"
+            title="5. Agent Point System"
             isOpen={openSection === 5}
             onToggle={() => setOpenSection(openSection === 5 ? null : 5)}
-            isValid={isConnectionStepValid()}
+            isValid={true}
           >
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-white">Select Connection Type</h2>
+              <h2 className="text-2xl font-bold mb-4 text-white">Join the Agent Point System</h2>
+              <p className="text-gray-300 mb-4">
+                Would you like to join our Agent Point System to earn rewards and benefits?
+              </p>
               <div className={cardContainerClass}>
                 <button
-                  onClick={() => handleConnectionSelection("apiKeys")}
+                  onClick={() => handleConnectionSelection("join")}
                   className={`
-                    ${selectedConnectionType === "apiKeys" ? selectedButtonClass : buttonClass}
+                    ${selectedConnectionType === "join" ? selectedButtonClass : buttonClass}
                     ${cardClass}
                   `}
                 >
-                  <span className={buttonTextClass}>Connection with API Keys</span>
+                  <span className={buttonTextClass}>Yes, I want to join!</span>
                 </button>
                 <button
-                  onClick={() => handleConnectionSelection("gaia")}
+                  onClick={() => handleConnectionSelection("noJoin")}
                   className={`
-                    ${selectedConnectionType === "gaia" ? selectedButtonClass : buttonClass}
+                    ${selectedConnectionType === "noJoin" ? selectedButtonClass : buttonClass}
                     ${cardClass}
                   `}
                 >
-                  <span className={buttonTextClass}>Connection with Gaia (OnChain)</span>
+                  <span className={buttonTextClass}>No, thanks.</span>
                 </button>
               </div>
-              {!isConnectionStepValid() && (
-                <p className="text-red-500">{getConnectionErrorMessage()}</p>
-              )}
             </div>
           </Accordion>
 
