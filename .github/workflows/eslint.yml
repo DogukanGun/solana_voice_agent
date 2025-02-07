@@ -46,8 +46,9 @@ jobs:
           --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-results.sarif
-          ls -la
         continue-on-error: true
+      - name: Print files
+        run: ls -la
       - name: Check if SARIF file exists
         run: |
           if [ ! -f eslint-results.sarif ]; then
