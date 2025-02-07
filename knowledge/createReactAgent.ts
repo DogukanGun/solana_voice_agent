@@ -6,6 +6,7 @@ import { GetAgentsPagedTool } from './cookie/tools/getAgentsPagedTool';
 import { SearchTweetsTool } from './cookie/tools/searchTweetsTool';
 import { createEigenTools } from './eigenlayer/tools';
 import { StructuredToolInterface } from '@langchain/core/tools';
+import { GetPriceTool } from './eOracle/tools/GetPriceTool';
 
 export type agent = 'cookie' | 'eigenlayer';
 
@@ -32,5 +33,6 @@ export function createKnowledgeReactAgent(
             tools.push(tool)
         })
     }
+    tools.push(new GetPriceTool())
     return createAgent(agentName, tools, messageModifier, isOnchain);
 } 

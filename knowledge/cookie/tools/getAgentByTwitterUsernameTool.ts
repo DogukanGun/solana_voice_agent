@@ -1,7 +1,7 @@
 // This file defines a tool for retrieving an agent by Twitter username.
 
 import { Tool } from "langchain/tools";
-import { z } from "zod";
+
 
 export class GetAgentByTwitterUsernameTool extends Tool {
     name = "get_agent_by_twitter_username";
