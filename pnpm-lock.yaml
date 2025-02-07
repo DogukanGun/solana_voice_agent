@@ -299,6 +299,9 @@ importers:
       nextjs:
         specifier: link:@toolpad/core/nextjs
         version: link:@toolpad/core/nextjs
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
       notistack:
         specifier: ^3.0.2
         version: 3.0.2(csstype@3.1.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
