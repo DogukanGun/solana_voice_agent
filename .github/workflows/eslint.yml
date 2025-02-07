@@ -32,12 +32,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
+      - name: Validate ESLint Config
+        run: pnpm exec eslint --print-config .eslintrc.js
       - name: Install ESLint and SARIF formatter
         run: |
           pnpm add eslint@8.10.0
           pnpm add @microsoft/eslint-formatter-sarif@3.1.0
-
       - name: Run ESLint
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
@@ -46,8 +46,14 @@ jobs:
           --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-results.sarif
+          ls -la
         continue-on-error: true
-
+      - name: Check if SARIF file exists
+        run: |
+          if [ ! -f eslint-results.sarif ]; then
+            echo "SARIF file not found!"
+            exit 1
+          fi
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
